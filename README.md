@@ -49,7 +49,7 @@ computer, in `settings.json`, which is not part of this repository.
 ## Course material
 
 The lecture book and the lecture notebooks are not included in this repository.
-The book is by profs. Azdejković, Radojičić and Stamenković.
+The book is by Professors Azdejković, Radojičić and Stamenković.
 
 ## Project files
 
