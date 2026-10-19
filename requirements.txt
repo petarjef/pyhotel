@@ -1,0 +1,4 @@
+PySide6
+ipykernel
+jupyter_client
+google-genai
