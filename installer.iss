@@ -1,6 +1,6 @@
 [Setup]
 AppName=Python Hotel
-AppVersion=1.0
+AppVersion=1.1
 DefaultDirName={localappdata}\PythonHotel
 DefaultGroupName=Python Hotel
 DisableProgramGroupPage=yes
