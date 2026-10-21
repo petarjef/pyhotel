@@ -63,6 +63,7 @@ class CodeLab(QWidget):
         self.km = self.kc = None
         self.msg_id = None
         self.running = False
+        self._quit_hooked = False
 
         mono = QFont("Consolas", 12)
 
@@ -73,6 +74,7 @@ class CodeLab(QWidget):
         bar = QHBoxLayout()
         bar.setContentsMargins(8, 8, 8, 8)
         bar.setSpacing(6)
+        self.bar = bar
         self.b_back = self._btn("< BACK")
         self.b_run = self._btn("RUN")
         self.b_stop = self._btn("STOP")
@@ -146,7 +148,11 @@ class CodeLab(QWidget):
                 f"Could not start Python kernel:\n{ex}\n\nTry: pip install ipykernel jupyter_client"
             )
             return False
-        QApplication.instance().aboutToQuit.connect(self.shutdown)
+        if not self._quit_hooked:
+            app = QApplication.instance()
+            if app is not None:
+                app.aboutToQuit.connect(self.shutdown)
+                self._quit_hooked = True
         self.timer.start(40)
         return True
 
@@ -154,11 +160,16 @@ class CodeLab(QWidget):
         try:
             if self.kc:
                 self.kc.stop_channels()
+        except Exception:
+            pass
+        try:
             if self.km:
                 self.km.shutdown_kernel(now=True)
         except Exception:
             pass
         self.km = self.kc = None
+        self.msg_id = None
+        self.running = False
 
     # ---------- dugmad ----------
     def run(self):
@@ -170,13 +181,23 @@ class CodeLab(QWidget):
 
     def stop(self):
         if self.km and self.running:
-            self.km.interrupt_kernel()
+            try:
+                self.km.interrupt_kernel()
+            except Exception:
+                pass
 
     def reset(self):
         if not self.km:
             return
-        self.km.restart_kernel(now=True)
-        self.kc.wait_for_ready(timeout=60)
+        try:
+            self.km.restart_kernel(now=True)
+            self.kc.wait_for_ready(timeout=60)
+        except Exception as ex:
+            self.out.setPlainText(f"Restart failed: {ex}\nPokusavam ponovo da pokrenem kernel...")
+            self.shutdown()
+            self.ensure_kernel()
+            return
+        self.msg_id = None
         self._set_running(False)
         self.out.setPlainText("Python restarted. All variables are cleared.")
 
@@ -196,6 +217,11 @@ class CodeLab(QWidget):
                 self._handle(self.kc.get_iopub_msg(timeout=0))
         except queue.Empty:
             pass
+        except Exception:
+            # kernel je verovatno umro — zaustavi polling i resetuj stanje
+            self.shutdown()
+            self.out.appendPlainText("\n[kernel se ugasio]")
+            return
         try:
             msg = self.kc.get_stdin_msg(timeout=0)
             if msg["msg_type"] == "input_request":
@@ -203,6 +229,8 @@ class CodeLab(QWidget):
                 self.inp.show()
                 self.inp.setFocus()
         except queue.Empty:
+            pass
+        except Exception:
             pass
 
     def _handle(self, msg):
@@ -217,7 +245,7 @@ class CodeLab(QWidget):
                 self._write(txt + "\n")
         elif t == "error":
             self._write(ANSI.sub("", "\n".join(c["traceback"])) + "\n")
-        elif t == "status" and c["execution_state"] == "idle":
+        elif t == "status" and c.get("execution_state") == "idle":
             self._set_running(False)
 
     def _send_input(self):
