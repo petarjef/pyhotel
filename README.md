@@ -8,7 +8,7 @@ one floor per lesson, by solving quizzes and writing real code.
 | Platform | How |
 | --- | --- |
 | Browser (any device) | Coming soon |
-| Windows | Download `PythonHotel_Setup.exe` from the [latest release](https://github.com/petarjef/pyhotel/releases/new) |
+| Windows | Download `PythonHotel_Setup.exe` from the [latest release](https://github.com/petarjef/pyhotel/releases) |
 | Mac | Use the browser version, or run from source (see below) |
 
 The Windows installer downloads Python and everything else it needs, so the
