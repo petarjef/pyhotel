@@ -11,6 +11,13 @@ EXCLUDE_FILES = {"settings.json", "progress.json", "chat_history.json",
                  "convert_lessons.py", "start.bat"}
 EXCLUDE_SUFFIX = {".pyc", ".iss", ".zip"}
 
+# knjiga i prezentacije se namerno pakuju u instaler (uz dozvolu profesora);
+# lessons/ (izvorni .ipynb) se ne pakuje
+for needed in ("book", "lessons_html"):
+    d = ROOT / needed
+    if not d.is_dir() or not any(d.iterdir()):
+        print(f"UPOZORENJE: {needed}/ je prazan ili ne postoji - instaler ce biti bez toga!")
+
 if OUT.exists():
     shutil.rmtree(OUT)
 OUT.mkdir(parents=True)

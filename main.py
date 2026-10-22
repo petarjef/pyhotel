@@ -8,7 +8,7 @@ from play import PlayPage
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QFont, QFontDatabase
 from PySide6.QtWidgets import (
-    QApplication, QButtonGroup, QHBoxLayout, QLabel,
+    QApplication, QButtonGroup, QHBoxLayout,
     QPushButton, QStackedWidget, QVBoxLayout, QWidget,
 )
 

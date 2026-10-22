@@ -200,7 +200,7 @@ QUIZ = {
         ('from scipy.optimize import minimize\nres = minimize(lambda x: (x[0] - 5)**2, x0=[0], bounds=[(0, 3)])\nprint(round(res.x[0], 1), round(res.fun, 1))', ['5.0 0.0', '3.0 0.0', '3.0 4.0', '0.0 25.0'], 2),
         ('from scipy.optimize import minimize\ncons = {"type": "eq", "fun": lambda v: v[0] + v[1] - 2}\nres = minimize(lambda v: v[0]**2 + v[1]**2, x0=[0, 0], constraints=cons)\nprint(round(res.x[0], 1), round(res.x[1], 1), round(res.fun, 1))', ['0.0 0.0 0.0', '2.0 0.0 4.0', '1.0 1.0 1.0', '1.0 1.0 2.0'], 3),
     ],
-    # ---- 22. Masinsko ucenje: Uvod ----
+    # ---- 22. Nadgledano ucenje ----
     22: [
         ('# Sta je masinsko ucenje?', ['Rucno pisanje pravila', 'Ucenje iz podataka', 'Baza podataka', 'Vrsta programa'], 1),
         ("# Sta je 'feature' u masinskom ucenju?", ['Ciljna promenljiva', 'Ulazna promenljiva', 'Greska modela', 'Algoritam'], 1),

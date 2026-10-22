@@ -2,7 +2,7 @@ from pathlib import Path
 import random
 from PySide6.QtCore import QPoint, QPropertyAnimation, QRect, Qt, QTimer, Signal
 from PySide6.QtGui import (
-    QColor, QFont, QFontMetrics, QLinearGradient, QPainter, QPen,
+    QColor, QFont, QFontMetrics, QLinearGradient, QPainter,
     QPixmap, QPolygon,
 )
 from PySide6.QtWidgets import (
@@ -53,7 +53,7 @@ def floor_done(i):
     return progress.done_count(i + 1) >= LEVELS
 
 
-UNLOCK_ALL = True  # False zakljucani
+UNLOCK_ALL = True  # namerno: svi spratovi otkljucani; konfete tek kad se zavrse svi
 
 
 def floor_state(i):
@@ -66,8 +66,7 @@ def floor_state(i):
 def all_done():
     floors = [i for i in range(len(LESSONS)) if (i + 1) in tasks.QUIZ]
     return bool(floors) and all(floor_done(i) for i in floors)
-#def all_done():
-    return True
+
 
 class Hotel(QWidget):
     floor_clicked = Signal(int)
@@ -94,7 +93,6 @@ class Hotel(QWidget):
         self.f16.setPixelSize(16)
         logo = QPixmap(str(BASE / "assets" / "python_logo.png"))
         self.logo = logo.scaled(36, 36, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-        COLORS = ["#ffd43b", "#d6336c", "#4b8bbe", "#6bd16b", "#ffffff", "#ff7a1a"]
 
     def step_confetti(self, tick):
         if tick % 85 == 0 and all_done():  # novi talas na svakih ~5 sekundi
