@@ -152,7 +152,7 @@ QUIZ = {
         ("import re\nprint(bool(re.match(r'a', 'abc')))", ["True", "False", "None", "Greska"], 0),
         ("import re\nprint(re.sub(r'\\s', '-', 'a b c'))", ["a-b-c", "a b c", "a--b--c", "abc"], 0),
         ("import re\nprint(re.search(r'\\d', 'abc123').group())", ["1", "123", "a", "None"], 0),
-        ("# Sta znaci r'^\\w+$'?", ["Pocinje slovom", "Samо slova i brojevi", "Bilo koji karakter", "Prazan string"], 1),
+        ("# Sta znaci r'^\\w+$'?", ["Pocinje slovom", "Samo slova i brojevi", "Bilo koji karakter", "Prazan string"], 1),
         ("import re\nprint(len(re.findall(r'[aeiou]', 'programiranje')))", ["4", "5", "6", "7"], 1),
     ],
     # ---- 17. Uvod u NumPy ----
@@ -215,8 +215,8 @@ QUIZ = {
         ("# Koja je osnovna teorema na kojoj se zasniva?", ["Pitagorina", "Bajesova teorema", "Njutnova", "Bolcmanova"], 1),
         ("from sklearn.naive_bayes import GaussianNB\n# Za koje tipove podataka se koristi GaussianNB?", ["Tekstualne", "Kontinualne (brojeve)", "Kategoricke", "Slike"], 1),
         ("# U cemu je prednost Naivnog Bajesa?", ["Najtacniji je uvek", "Veoma je brz i dobar za velike skupove", "Ne zahteva podatke", "Radi samo sa slikama"], 1),
-        ("# Ako se u test skupu pojavi rec koja nije vidjena u treningu, kako Naivni Bajes to resi?", ["Puca sa greskom", "Ignorise rec", "Koristi Laplasovo izglađivanje", "Odbacuje ceo red"], 2),
-        ("from sklearn.naive_bayes import GaussianNB\nclf = GaussianNB()\n# Sta radi metoda fit()?", ["Predvidja", "Trenira model na podacima", "Cisti podatke", "Crtа grafik"], 1),
+        ("# Ako se u test skupu pojavi rec koja nije vidjena u treningu, kako Naivni Bajes to resi?", ["Puca sa greskom", "Ignorise rec", "Koristi Laplasovo izgladjivanje", "Odbacuje ceo red"], 2),
+        ("from sklearn.naive_bayes import GaussianNB\nclf = GaussianNB()\n# Sta radi metoda fit()?", ["Predvidja", "Trenira model na podacima", "Cisti podatke", "Crta grafik"], 1),
     ],
     # ---- 24. K najblizih suseda ----
     24: [
@@ -224,7 +224,7 @@ QUIZ = {
         ("# Sta znaci 'K' u KNN?", ["Broj atributa", "Broj suseda", "Broj klasa", "Broj iteracija"], 1),
         ("# Zasto je skaliranje podataka (npr. StandardScaler) obavezno kod KNN?", ["Da bi algoritam bio brzi", "Zato sto racuna razdaljinu, a veliki brojevi dominiraju", "Da bi bio lepsi grafik", "Ne treba skalirati"], 1),
         ("# Ako je K=1, kakav model dobijamo?", ["Veoma gladak", "Sklon overfittingu (preprilagodjavanju)", "Sklon underfittingu", "Nista"], 1),
-        ("from sklearn.neighbors import KNeighborsClassifier\nclf = KNeighborsClassifier(n_neighbors=3)\n# Sta radi metoda predict()?", ["Trenira model", "Vraca predvidjene klase za nove podatke", "Ispisuje tacnost", "Brіse model"], 1),
+        ("from sklearn.neighbors import KNeighborsClassifier\nclf = KNeighborsClassifier(n_neighbors=3)\n# Sta radi metoda predict()?", ["Trenira model", "Vraca predvidjene klase za nove podatke", "Ispisuje tacnost", "Brise model"], 1),
         ("# KNN spada u koju vrstu ucenja?", ["Nadgledano", "Nenadgledano", "Potkrepljujuce", "Polunadgledano"], 0),
     ],
     # ---- 25. Stabla odlucivanja ----
@@ -232,7 +232,7 @@ QUIZ = {
         ("# Sta je cvor (node) u stablu odlucivanja?", ["Mesto gde se donosi odluka", "Krajnji rezultat", "Grana", "Podatak"], 0),
         ("# Koja metrika se cesto koristi za podelu u stablu?", ["Euklidska distanca", "Dzinijev indeks ili informaciona dobit", "Kosinusna slicnost", "Bajes"], 1),
         ("# Ako stablo raste bez ogranicenja, sta se moze desiti?", ["Bice veoma precizno na treningu, a lose na testu (overfitting)", "Bice beskorisno", "Nece raditi", "Nista"], 0),
-        ("# Kako se zove tehnika kresanja stabla da se spreči overfitting?", ["Boosting", "Pruning (kresanje)", "Bagging", "Scaling"], 1),
+        ("# Kako se zove tehnika kresanja stabla da se spreci overfitting?", ["Boosting", "Pruning (kresanje)", "Bagging", "Scaling"], 1),
         ("# Stabla odlucivanja su dobra jer su:", ["Lako interpretabilna (razumljiva coveku)", "Uvek najtacnija", "Ne zahtevaju podatke", "Veoma spora"], 0),
         ("from sklearn.tree import DecisionTreeClassifier\n# Kako se zove parametar koji ogranicava dubinu stabla?", ["max_depth", "max_leafs", "depth", "tree_size"], 0),
     ],
@@ -324,7 +324,7 @@ CODE = {
         ("Recnik d = {'ime': 'Ana', 'godine': 20} je napravljen. Ispisi vrednost za kljuc 'godine'.", "20", "d = {'ime': 'Ana', 'godine': 20}\n", "d = {'ime': 'Ana', 'godine': 20}\nprint(d['godine'])"),
         ("Napravi dva skupa a = {1, 2, 3} i b = {3, 4, 5}. Ispisi njihov presek (zajednicke elemente).", "{3}", "a = {1, 2, 3}\nb = {3, 4, 5}\n", "a = {1, 2, 3}\nb = {3, 4, 5}\nprint(a & b)"),
         ("Data su dva recnika: d1 = {'a': 1} i d2 = {'b': 2}. Spoji ih u jedan i ispisi.", "{'a': 1, 'b': 2}", "d1 = {'a': 1}\nd2 = {'b': 2}\n", "d1 = {'a': 1}\nd2 = {'b': 2}\nd1.update(d2)\nprint(d1)"),
-        ("Data je lista reci ['ja', 'ucim', 'pajton']. Koristi skup da ispises sve jedinstvene duzine tih reci sortirane rastuce.", "[2, 5, 6]", "reci = ['ja', 'ucim', 'pajton']\n", "reci = ['ja', 'ucim', 'pajton']\nprint(sorted(set(len(r) for r in reci)))"),
+        ("Data je lista reci ['ja', 'ucim', 'pajton']. Koristi skup da ispises sve jedinstvene duzine tih reci sortirane rastuce.", "[2, 4, 6]", "reci = ['ja', 'ucim', 'pajton']\n", "reci = ['ja', 'ucim', 'pajton']\nprint(sorted(set(len(r) for r in reci)))"),
     ],
     10: [
         ("Neka je broj = 7. Ako je broj paran ispisi 'Parno', inace ispisi 'Neparno'.", "Neparno", "broj = 7\n", "broj = 7\nif broj % 2 == 0:\n    print('Parno')\nelse:\n    print('Neparno')"),
@@ -353,7 +353,7 @@ CODE = {
     13: [
         ("U fajl 'test.txt' upisi tekst 'Zdravo'. Zatim otvori fajl i ispisi njegov sadrzaj.", "Zdravo", S, "with open('test.txt', 'w') as f:\n    f.write('Zdravo')\n\nwith open('test.txt', 'r') as f:\n    print(f.read())"),
         ("U fajl 'brojevi.txt' upisi brojeve 1, 2, 3 svaki u novom redu. Zatim ispisi sadrzaj.", "1\n2\n3", S, "with open('brojevi.txt', 'w') as f:\n    f.write('1\\n2\\n3')\n\nwith open('brojevi.txt', 'r') as f:\n    print(f.read())"),
-        ("U fajl 'recenica.txt' upisi 'Python je zabavan'. Zatim ispisi broj karaktera u fajlu.", "16", S, "with open('recenica.txt', 'w') as f:\n    f.write('Python je zabavan')\n\nwith open('recenica.txt', 'r') as f:\n    print(len(f.read()))"),
+        ("U fajl 'recenica.txt' upisi 'Python je zabavan'. Zatim ispisi broj karaktera u fajlu.", "17", S, "with open('recenica.txt', 'w') as f:\n    f.write('Python je zabavan')\n\nwith open('recenica.txt', 'r') as f:\n    print(len(f.read()))"),
         ("U fajl 'linije.txt' upisi 'A\\nB\\nC'. Zatim ispisi broj linija u fajlu koristeci readlines().", "3", S, "with open('linije.txt', 'w') as f:\n    f.write('A\\nB\\nC')\n\nwith open('linije.txt', 'r') as f:\n    print(len(f.readlines()))"),
         ("U fajl 'dodaj.txt' upisi 'Prva'. Zatim otvori u modu 'a' i dodaj 'Druga'. Ispisi ceo sadrzaj.", "PrvaDruga", S, "with open('dodaj.txt', 'w') as f:\n    f.write('Prva')\n\nwith open('dodaj.txt', 'a') as f:\n    f.write('Druga')\n\nwith open('dodaj.txt', 'r') as f:\n    print(f.read())"),
         ("U fajl 'reci.txt' upisi 'jabuka\\nkruska'. Zatim ispisi svaku liniju velikim slovima (jedna ispod druge).", "JABUKA\nKRUSKA", S, "with open('reci.txt', 'w') as f:\n    f.write('jabuka\\nkruska')\n\nwith open('reci.txt', 'r') as f:\n    for linija in f:\n        print(linija.strip().upper())"),
@@ -379,7 +379,7 @@ CODE = {
         ("Koristi re.sub da zamenis sve samoglasnike (a, e, i, o, u) zvezdicom u stringu 'programiranje'. Ispisi rezultat.", "pr*gr*m*r*nj*", "import re\ns = 'programiranje'\n", "import re\ns = 'programiranje'\nprint(re.sub(r'[aeiou]', '*', s))"),
         ("Koristi re.match da proveris da li string 'Pajton' pocinje velikim slovom (A-Z). Ispisi True ili False.", "True", "import re\ns = 'Pajton'\n", "import re\ns = 'Pajton'\nprint(bool(re.match(r'^[A-Z]', s)))"),
         ("Koristi re.split da razdvojis string 'jabuka, kruska; sljiva' po zapeti ILI tacka-zapeti (sa razmakom ili bez). Ispisi listu.", "['jabuka', 'kruska', 'sljiva']", "import re\ns = 'jabuka, kruska; sljiva'\n", "import re\ns = 'jabuka, kruska; sljiva'\nprint(re.split(r'[,;]\\s*', s))"),
-        ("Koristi re.findall da pronadjes sve reci koje imaju tacno 3 slova u stringu 'ja ucim da programiram'. Ispisi listu.", "['ucim']", "import re\ns = 'ja ucim da programiram'\n", "import re\ns = 'ja ucim da programiram'\nprint(re.findall(r'\\b\\w{4}\\b', s)) # ispravka: rec 'ucim' ima 4 slova. Ako trazimo 3, to je 'sve'."),
+        ("Koristi re.findall da pronadjes sve reci koje imaju tacno 4 slova u stringu 'ja ucim da programiram'. Ispisi listu.", "['ucim']", "import re\ns = 'ja ucim da programiram'\n", "import re\ns = 'ja ucim da programiram'\nprint(re.findall(r'\\b\\w{4}\\b', s))"),
         ("Proveri da li je string 'test@mail.com' validan email pomocu re.match (prosto: slova, @, slova, tacka, slova). Ispisi True ili False.", "True", "import re\ns = 'test@mail.com'\n", "import re\ns = 'test@mail.com'\nprint(bool(re.match(r'^\\w+@\\w+\\.\\w+$', s)))"),
     ],
     17: [
@@ -399,15 +399,15 @@ CODE = {
         ("Napravi grafik sa dve linije: y1 = [1, 2, 3] i y2 = [3, 2, 1]. Dodaj legendu sa imenima 'Rast' i 'Pad'.", "", "import matplotlib.pyplot as plt\n", "import matplotlib.pyplot as plt\nplt.plot([1, 2, 3], label='Rast')\nplt.plot([3, 2, 1], label='Pad')\nplt.legend()"),
     ],
         19: [
-        ("Uvezi random. Baci kockicu 1000 puta (random.randint(1, 6)) i ispisi prosek.", "3.5", "import random\n", "import random\nrezultati = [random.randint(1, 6) for _ in range(1000)]\nprint(round(sum(rezultati) / 1000, 1))"),
-        ("Simuliraj 100 bacanja novcica (0 ili 1). Ispisi broj dobijenih jedinica.", "50", "import random\n", "import random\nbacanja = [random.choice([0, 1]) for _ in range(100)]\nprint(sum(bacanja))"),
-        ("Uvezi random. Napravi listu od 10 slucajnih brojeva izmedju 1 i 10 i ispisi je.", "[5, 2, 8, 1, 9, 3, 7, 4, 6, 10]", "import random\n", "import random\nlista = [random.randint(1, 10) for _ in range(10)]\nprint(lista)"),
-        ("Simuliraj 1000 bacanja dve kockice. Ispisi koliko puta je zbir bio 7.", "166", "import random\n", "import random\nsedmice = sum(1 for _ in range(1000) if random.randint(1, 6) + random.randint(1, 6) == 7)\nprint(sedmice)"),
+        ("Uvezi random. Postavi random.seed(42), pa baci kockicu 1000 puta (random.randint(1, 6)) i ispisi prosek zaokruzen na 1 decimalu.", "3.5", "import random\n", "import random\nrandom.seed(42)\nrezultati = [random.randint(1, 6) for _ in range(1000)]\nprint(round(sum(rezultati) / 1000, 1))"),
+        ("Postavi random.seed(42), pa simuliraj 100 bacanja novcica (random.choice([0, 1])). Ispisi broj dobijenih jedinica.", "44", "import random\n", "import random\nrandom.seed(42)\nbacanja = [random.choice([0, 1]) for _ in range(100)]\nprint(sum(bacanja))"),
+        ("Uvezi random. Postavi random.seed(42), pa napravi listu od 10 slucajnih brojeva izmedju 1 i 10 (random.randint) i ispisi je.", "[2, 1, 5, 4, 4, 3, 2, 9, 2, 10]", "import random\n", "import random\nrandom.seed(42)\nlista = [random.randint(1, 10) for _ in range(10)]\nprint(lista)"),
+        ("Postavi random.seed(42), pa simuliraj 1000 bacanja dve kockice (dva poziva random.randint(1, 6) po bacanju). Ispisi koliko puta je zbir bio 7.", "160", "import random\n", "import random\nrandom.seed(42)\nsedmice = sum(1 for _ in range(1000) if random.randint(1, 6) + random.randint(1, 6) == 7)\nprint(sedmice)"),
         ("Uvezi random. Postavi seed na 42. Ispisi prvi slucajni broj (random.random()).", "0.6394267984578837", "import random\n", "import random\nrandom.seed(42)\nprint(random.random())"),
-        ("Izracunaj pribliznu vrednost broja pi koristeci Monte Karlo metodu (1000 tacaka). Ispisi zaokruzeno na 2 decimale.", "3.14", "import random\n", "import random\nunutar = 0\nfor _ in range(1000):\n    x = random.uniform(-1, 1)\n    y = random.uniform(-1, 1)\n    if x*x + y*y <= 1:\n        unutar += 1\nprint(round(4 * unutar / 1000, 2))"),
+        ("Postavi random.seed(42) i izracunaj pribliznu vrednost broja pi Monte Karlo metodom: 1000 tacaka, x i y iz random.uniform(-1, 1) (prvo x, pa y). Ispisi zaokruzeno na 2 decimale.", "3.18", "import random\n", "import random\nrandom.seed(42)\nunutar = 0\nfor _ in range(1000):\n    x = random.uniform(-1, 1)\n    y = random.uniform(-1, 1)\n    if x*x + y*y <= 1:\n        unutar += 1\nprint(round(4 * unutar / 1000, 2))"),
     ],
     20: [
-        ("Uvezi pandas kao pd. Napravi DataFrame sa kolonom 'ime': ['Ana', 'Marko'] i ispisi ga.", "    ime\n0   Ana\n1  Marko", "import pandas as pd\n", "import pandas as pd\ndf = pd.DataFrame({'ime': ['Ana', 'Marko']})\nprint(df)"),
+        ("Uvezi pandas kao pd. Napravi DataFrame sa kolonom 'ime': ['Ana', 'Marko'] i ispisi ga.", "     ime\n0    Ana\n1  Marko", "import pandas as pd\n", "import pandas as pd\ndf = pd.DataFrame({'ime': ['Ana', 'Marko']})\nprint(df)"),
         ("Napravi Series [10, 20, 30] i ispisi njegov zbir.", "60", "import pandas as pd\n", "import pandas as pd\ns = pd.Series([10, 20, 30])\nprint(s.sum())"),
         ("Napravi DataFrame sa kolonama 'a' i 'b' ([1, 2], [3, 4]). Ispisi samo kolonu 'a' kao Series.", "0    1\n1    2\nName: a, dtype: int64", "import pandas as pd\n", "import pandas as pd\ndf = pd.DataFrame({'a': [1, 2], 'b': [3, 4]})\nprint(df['a'])"),
         ("Data je lista [5, 10, 15]. Napravi DataFrame i ispisi red gde je vrednost veca od 5.", "   0\n1  10\n2  15", "import pandas as pd\n", "import pandas as pd\ndf = pd.DataFrame([5, 10, 15])\nprint(df[df[0] > 5])"),
@@ -432,18 +432,18 @@ CODE = {
     ],
         23: [
         ("Uvezi GaussianNB. Napravi model, istreniraj ga na X = [[1], [2], [3], [4]] i y = [0, 0, 1, 1] i ispisi predikciju za [[2.5]].", "[0]", "from sklearn.naive_bayes import GaussianNB\n", "from sklearn.naive_bayes import GaussianNB\nX = [[1], [2], [3], [4]]\ny = [0, 0, 1, 1]\nclf = GaussianNB()\nclf.fit(X, y)\nprint(clf.predict([[2.5]]))"),
-        ("Uvezi GaussianNB. Treniraj na X = [[1], [2]] i y = [1, 0]. Ispisi predikciju za [[1.5]].", "[1]", "from sklearn.naive_bayes import GaussianNB\n", "from sklearn.naive_bayes import GaussianNB\nX = [[1], [2]]\ny = [1, 0]\nclf = GaussianNB()\nclf.fit(X, y)\nprint(clf.predict([[1.5]]))"),
+        ("Uvezi GaussianNB. Treniraj na X = [[1], [2], [8], [9]] i y = [0, 0, 1, 1]. Ispisi predikciju za [[8.5]].", "[1]", "from sklearn.naive_bayes import GaussianNB\n", "from sklearn.naive_bayes import GaussianNB\nX = [[1], [2], [8], [9]]\ny = [0, 0, 1, 1]\nclf = GaussianNB()\nclf.fit(X, y)\nprint(clf.predict([[8.5]]))"),
         ("Uvezi GaussianNB. Treniraj na X = [[1, 2], [2, 3], [3, 4]] i y = [0, 0, 1]. Ispisi predikciju za [[2, 3]].", "[0]", "from sklearn.naive_bayes import GaussianNB\n", "from sklearn.naive_bayes import GaussianNB\nX = [[1, 2], [2, 3], [3, 4]]\ny = [0, 0, 1]\nclf = GaussianNB()\nclf.fit(X, y)\nprint(clf.predict([[2, 3]]))"),
         ("Uvezi GaussianNB. Treniraj model na X = [[1], [2]] i y = [1, 0]. Ispisi predikciju za dve tacke: [[1], [2]].", "[1 0]", "from sklearn.naive_bayes import GaussianNB\n", "from sklearn.naive_bayes import GaussianNB\nX = [[1], [2]]\ny = [1, 0]\nclf = GaussianNB()\nclf.fit(X, y)\nprint(clf.predict([[1], [2]]))"),
         ("Uvezi GaussianNB. Treniraj na X = [[1], [2], [3]] i y = [1, 1, 0]. Ispisi predikciju za [[10]].", "[1]", "from sklearn.naive_bayes import GaussianNB\n", "from sklearn.naive_bayes import GaussianNB\nX = [[1], [2], [3]]\ny = [1, 1, 0]\nclf = GaussianNB()\nclf.fit(X, y)\nprint(clf.predict([[10]]))"),
-        ("Uvezi GaussianNB. Treniraj na X = [[1], [2], [3]] i y = [1, 0, 1]. Ispisi tacnost (score) na istim podacima (X, y).", "0.6666666666666666", "from sklearn.naive_bayes import GaussianNB\n", "from sklearn.naive_bayes import GaussianNB\nX = [[1], [2], [3]]\ny = [1, 0, 1]\nclf = GaussianNB()\nclf.fit(X, y)\nprint(clf.score(X, y))"),
+        ("Uvezi GaussianNB. Treniraj na X = [[1], [2], [3]] i y = [1, 0, 1]. Ispisi tacnost (score) na istim podacima (X, y).", "1.0", "from sklearn.naive_bayes import GaussianNB\n", "from sklearn.naive_bayes import GaussianNB\nX = [[1], [2], [3]]\ny = [1, 0, 1]\nclf = GaussianNB()\nclf.fit(X, y)\nprint(clf.score(X, y))"),
     ],
     24: [
         ("Uvezi KNeighborsClassifier sa K=3. Treniraj na X = [[1], [2], [3], [4]] i y = [0, 0, 1, 1]. Ispisi predikciju za [[2.5]].", "[0]", "from sklearn.neighbors import KNeighborsClassifier\n", "from sklearn.neighbors import KNeighborsClassifier\nX = [[1], [2], [3], [4]]\ny = [0, 0, 1, 1]\nclf = KNeighborsClassifier(n_neighbors=3)\nclf.fit(X, y)\nprint(clf.predict([[2.5]]))"),
         ("Uvezi KNeighborsClassifier sa K=1. Treniraj na X = [[1], [2], [3]] i y = [0, 0, 1]. Ispisi predikciju za [[2.1]].", "[0]", "from sklearn.neighbors import KNeighborsClassifier\n", "from sklearn.neighbors import KNeighborsClassifier\nX = [[1], [2], [3]]\ny = [0, 0, 1]\nclf = KNeighborsClassifier(n_neighbors=1)\nclf.fit(X, y)\nprint(clf.predict([[2.1]]))"),
         ("Uvezi KNeighborsClassifier sa K=1. Treniraj na X = [[1, 1], [2, 2], [3, 3]] i y = [0, 0, 1]. Ispisi predikciju za [[2, 2]].", "[0]", "from sklearn.neighbors import KNeighborsClassifier\n", "from sklearn.neighbors import KNeighborsClassifier\nX = [[1, 1], [2, 2], [3, 3]]\ny = [0, 0, 1]\nclf = KNeighborsClassifier(n_neighbors=1)\nclf.fit(X, y)\nprint(clf.predict([[2, 2]]))"),
-        ("Uvezi KNeighborsClassifier sa K=3. Treniraj na X = [[1], [2], [3]] i y = [1, 0, 1]. Ispisi predikciju za dve tacke: [[2], [3]].", "[0 1]", "from sklearn.neighbors import KNeighborsClassifier\n", "from sklearn.neighbors import KNeighborsClassifier\nX = [[1], [2], [3]]\ny = [1, 0, 1]\nclf = KNeighborsClassifier(n_neighbors=3)\nclf.fit(X, y)\nprint(clf.predict([[2], [3]]))"),
-        ("Uvezi StandardScaler iz sklearn.preprocessing. Skaliraj listu [[10], [20], [30]] i ispisi transformisane podatke zaokruzene na 1 decimalu.", "[[-1.2]\\n [ 0. ]\\n [ 1.2]]", "from sklearn.preprocessing import StandardScaler\n", "from sklearn.preprocessing import StandardScaler\nX = [[10], [20], [30]]\nscaler = StandardScaler()\nprint(scaler.fit_transform(X).round(1))"),
+        ("Uvezi KNeighborsClassifier sa K=3. Treniraj na X = [[1], [2], [3]] i y = [1, 0, 1]. Ispisi predikciju za dve tacke: [[2], [3]].", "[1 1]", "from sklearn.neighbors import KNeighborsClassifier\n", "from sklearn.neighbors import KNeighborsClassifier\nX = [[1], [2], [3]]\ny = [1, 0, 1]\nclf = KNeighborsClassifier(n_neighbors=3)\nclf.fit(X, y)\nprint(clf.predict([[2], [3]]))"),
+        ("Uvezi StandardScaler iz sklearn.preprocessing. Skaliraj listu [[10], [20], [30]] i ispisi transformisane podatke zaokruzene na 1 decimalu.", "[[-1.2]\n [ 0. ]\n [ 1.2]]", "from sklearn.preprocessing import StandardScaler\n", "from sklearn.preprocessing import StandardScaler\nX = [[10], [20], [30]]\nscaler = StandardScaler()\nprint(scaler.fit_transform(X).round(1))"),
         ("Uvezi KNeighborsClassifier sa K=1. Treniraj na X = [[1], [2], [3], [4]] i y = [0, 1, 0, 1]. Ispisi tacnost (score) na istim podacima.", "1.0", "from sklearn.neighbors import KNeighborsClassifier\n", "from sklearn.neighbors import KNeighborsClassifier\nX = [[1], [2], [3], [4]]\ny = [0, 1, 0, 1]\nclf = KNeighborsClassifier(n_neighbors=1)\nclf.fit(X, y)\nprint(clf.score(X, y))"),
     ],
     25: [
@@ -459,7 +459,7 @@ CODE = {
         ("Uvezi RandomForestClassifier. Treniraj na X = [[1], [2]] i y = [1, 0]. Ispisi predikciju za [[1.5]].", "[1]", "from sklearn.ensemble import RandomForestClassifier\n", "from sklearn.ensemble import RandomForestClassifier\nX = [[1], [2]]\ny = [1, 0]\nclf = RandomForestClassifier(random_state=0)\nclf.fit(X, y)\nprint(clf.predict([[1.5]]))"),
         ("Uvezi RandomForestClassifier. Treniraj na X = [[1, 2], [2, 3], [3, 4]] i y = [0, 0, 1]. Ispisi predikciju za [[2, 3]].", "[0]", "from sklearn.ensemble import RandomForestClassifier\n", "from sklearn.ensemble import RandomForestClassifier\nX = [[1, 2], [2, 3], [3, 4]]\ny = [0, 0, 1]\nclf = RandomForestClassifier(random_state=42)\nclf.fit(X, y)\nprint(clf.predict([[2, 3]]))"),
         ("Uvezi RandomForestClassifier. Treniraj na X = [[1], [2], [3], [4]] i y = [0, 1, 0, 1]. Ispisi tacnost (score) na istim podacima.", "1.0", "from sklearn.ensemble import RandomForestClassifier\n", "from sklearn.ensemble import RandomForestClassifier\nX = [[1], [2], [3], [4]]\ny = [0, 1, 0, 1]\nclf = RandomForestClassifier(random_state=0)\nclf.fit(X, y)\nprint(clf.score(X, y))"),
-        ("Uvezi RandomForestClassifier sa n_estimators=10. Treniraj na X = [[1], [2], [3]] i y = [1, 0, 1]. Ispisi predikciju za [[2]].", "[0]", "from sklearn.ensemble import RandomForestClassifier\n", "from sklearn.ensemble import RandomForestClassifier\nX = [[1], [2], [3]]\ny = [1, 0, 1]\nclf = RandomForestClassifier(n_estimators=10, random_state=42)\nclf.fit(X, y)\nprint(clf.predict([[2]]))"),
+        ("Uvezi RandomForestClassifier sa n_estimators=10. Treniraj na X = [[1], [2], [3]] i y = [1, 0, 1]. Ispisi koliko stabala ima u sumi (len(clf.estimators_)).", "10", "from sklearn.ensemble import RandomForestClassifier\n", "from sklearn.ensemble import RandomForestClassifier\nX = [[1], [2], [3]]\ny = [1, 0, 1]\nclf = RandomForestClassifier(n_estimators=10)\nclf.fit(X, y)\nprint(len(clf.estimators_))"),
         ("Uvezi RandomForestClassifier. Treniraj model i ispisi broj stabala u sumi (n_estimators) za default model.", "100", "from sklearn.ensemble import RandomForestClassifier\n", "from sklearn.ensemble import RandomForestClassifier\nclf = RandomForestClassifier()\nprint(clf.n_estimators)"),
     ],
 }
