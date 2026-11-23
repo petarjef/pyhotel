@@ -3,13 +3,20 @@
 An educational game for learning Python. Climb the floors of a pixel-art hotel,
 one floor per lesson, by solving quizzes and writing real code.
 
+## How the code editor works
+
+Your variables stay between runs. If you write `x = 5` and run it, then write
+`print(x)` and run again, it prints 5. This is the same in the Code Lab and in
+the coding levels, and it carries over from one level to the next. Press **RESET**
+to clear everything and start with a clean Python. In the browser version,
+**STOP** also clears your variables.
+
 ## Play
 
 | Platform | How |
 | --- | --- |
 | Browser (any device) | [petarjef.github.io/pyhotel](https://petarjef.github.io/pyhotel/) |
 | Windows | Download `PythonHotel_Setup.exe` from the [latest release](https://github.com/petarjef/pyhotel/releases) |
-| Mac | Use the browser version, or run from source (see below) |
 
 The Windows installer downloads Python and everything else it needs, so the
 first installation takes a few minutes and needs an internet connection.
@@ -19,37 +26,15 @@ signed. Click **More info**, then **Run anyway**.
 ## Features
 
 - **Hotel:** every floor is a lesson, with 12 levels each (quizzes and coding tasks).
-- **Code Lab:** a built-in Python editor backed by a Jupyter kernel. Variables
-  persist between runs, and `input()` works.
+- **Code Lab:** a built-in Python editor backed by a Jupyter kernel.
 - **Lectures:** the course book, opened from its website ([dazdejkovic.github.io/OI_25_jb1](https://dazdejkovic.github.io/OI_25_jb1/OI_25_00_uvod.html)). It needs an internet connection.
 - **Monty Python:** an AI tutor that answers Python questions.
   It uses Google Gemini with your own free API key (see below).
 - Progress is saved locally on your computer.
 
-## Web version
+## Browser version
 
-The browser version lives in `docs/` and is served by GitHub Pages. It is plain HTML and JavaScript, no build step. The floors, quizzes and tasks come from `tasks.py`, copied into `docs/data.js`. After you change `tasks.py`, run:
-
-```
-python build_web_data.py
-```
-
-The Code Lab runs Python in the browser with [Pyodide](https://pyodide.org). The first run downloads Python, and the first use of NumPy, Pandas, SciPy or scikit-learn downloads those too, so it can take a while on a slow connection. `input()` reads from the box under the editor, one line per answer. In the AI tutor, the Gemini key is stored in your browser only (localStorage). Progress is saved per browser.
-
-To try it locally: `python -m http.server -d docs`, then open http://localhost:8000.
-
-## Run from source
-
-Requires Python 3.12 or newer.
-
-```powershell
-git clone https://github.com/petarjef/pyhotel
-cd pyhotel
-py -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-python main.py
-```
+Nothing to install, it runs in your browser. The first time you run code, the page loads Python, which takes a few seconds. The first time you use NumPy, Pandas, SciPy or scikit-learn, those libraries are loaded as well, which can take longer on a slow connection. After that it is quick. If your code uses `input()`, type the answers in the box under the editor, one per line. Your progress is saved in your browser, and the Gemini key for the AI tutor stays in your browser too.
 
 ## Monty Python (AI tutor)
 
@@ -66,19 +51,3 @@ It is read online at
 In the game, the Lectures tab opens its chapters from there, so it needs an
 internet connection. The book is by Professors Azdejković, Radojičić and
 Stamenković.
-
-## Project files
-
-| File | Purpose |
-| --- | --- |
-| `main.py` | Window and the three top tabs |
-| `hotel.py` | Hotel scene, floors, confetti |
-| `play.py` | Level selection, quizzes, tasks |
-| `tasks.py` | All quiz and coding tasks |
-| `lab.py` | Code Lab (Jupyter kernel) |
-| `lectures.py` | Lectures tab: book cover and chapter list (opens the online book) |
-| `ai.py` | AI tutor |
-| `progress.py` | Saved progress |
-| `docs/` | Browser version, served by GitHub Pages |
-| `build_web_data.py` | Generates `docs/data.js` from `tasks.py` and `lectures.py` |
-| `make_release.py`, `installer.iss` | Build the Windows installer |
