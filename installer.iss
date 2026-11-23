@@ -4,6 +4,7 @@ AppVersion=1.1
 DefaultDirName={localappdata}\PythonHotel
 DefaultGroupName=Python Hotel
 DisableProgramGroupPage=yes
+DisableDirPage=no
 PrivilegesRequired=lowest
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
@@ -27,9 +28,9 @@ Name: "{autodesktop}\Python Hotel"; Filename: "{app}\.venv\Scripts\pythonw.exe";
 
 [Run]
 Filename: "{tmp}\python-installer.exe"; Parameters: "/quiet InstallAllUsers=0 PrependPath=1 Include_launcher=0 Include_test=0 Include_doc=0"; Check: NeedPython; StatusMsg: "Installing Python..."
-Filename: "{code:PythonExe}"; Parameters: "-m venv ""{app}\.venv"""; Flags: runhidden; StatusMsg: "Creating Python enviornment..."
+Filename: "{code:PythonExe}"; Parameters: "-m venv ""{app}\.venv"""; Flags: runhidden; StatusMsg: "Creating Python environment..."
 Filename: "{app}\.venv\Scripts\python.exe"; Parameters: "-m pip install --upgrade pip"; Flags: runhidden; StatusMsg: "Updating pip..."
-Filename: "{app}\.venv\Scripts\python.exe"; Parameters: "-m pip install -r ""{app}\requirements.txt"""; Flags: runhidden; StatusMsg: "Downloading libaries (this may take couple of minutes)..."
+Filename: "{app}\.venv\Scripts\python.exe"; Parameters: "-m pip install -r ""{app}\requirements.txt"""; Flags: runhidden; StatusMsg: "Downloading libraries (this may take couple of minutes)..."
 Filename: "{app}\.venv\Scripts\pythonw.exe"; Parameters: "main.py"; WorkingDir: "{app}"; Description: "Launch Python Hotel"; Flags: nowait postinstall skipifsilent
 
 [UninstallDelete]

@@ -1,6 +1,4 @@
-import re
-
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import QTimer, Qt, Signal
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import (
     QGridLayout, QLabel, QPlainTextEdit, QPushButton,
@@ -84,12 +82,7 @@ class LevelsPage(QWidget):
 
         self.grid_holder.deleteLater()
         self.grid_holder = QWidget()
-
-        has_any = any(
-            tasks.get_task(n, k + 1) is not None for k in range(hotel.LEVELS)
-        )
-
-        if not has_any:
+        if n not in tasks.QUIZ:
             box = QVBoxLayout(self.grid_holder)
             note = QLabel("Zadaci za ovaj sprat stizu uskoro.")
             note.setObjectName("lnote")
@@ -210,18 +203,8 @@ class QuizPage(QWidget):
             self.msg.setText("Netacno, probaj ponovo.")
 
 
-# Broj bez slova/tacke oko sebe (20, 20.0, -3.50). Tako "20" i "20.0" postaju isto.
-_NUM = re.compile(r"(?<![\w.])-?\d+(?:\.\d+)?(?![\w.])")
-
-
-def _canon_num(m):
-    v = float(m.group(0))
-    return str(int(v)) if v == int(v) and abs(v) < 2**53 else repr(v)
-
-
 def _norm(s):
-    s = "\n".join(line.rstrip() for line in s.strip().splitlines())
-    return _NUM.sub(_canon_num, s)
+    return "\n".join(line.rstrip() for line in s.strip().splitlines())
 
 
 class TaskLab(CodeLab):
@@ -235,11 +218,11 @@ class TaskLab(CodeLab):
         self.checking = False
         self.captured = ""
         self.b_check = self._btn("CHECK")
-        self.bar.addWidget(self.b_check)
+        self.layout().itemAt(0).layout().addWidget(self.b_check)
         self.b_check.clicked.connect(self.check)
         self.b_next = self._btn("NEXT >")
         self.b_next.hide()
-        self.bar.addWidget(self.b_next)
+        self.layout().itemAt(0).layout().addWidget(self.b_next)
         self.b_next.clicked.connect(self.next_clicked)
 
     def load_task(self, text, starter, expected):
@@ -307,8 +290,6 @@ class PlayPage(QStackedWidget):
         self.lab.next_clicked.connect(self._next)
 
     def _open_floor(self, n):
-        if not 1 <= n <= len(hotel.LESSONS):
-            return
         self.floor = n
         self._to_levels()
 
@@ -328,14 +309,8 @@ class PlayPage(QStackedWidget):
             self.setCurrentIndex(0)
 
     def _open_level(self, floor, level):
-        if not 1 <= floor <= len(hotel.LESSONS):
-            return
         self.floor, self.level = floor, level
         t = tasks.get_task(floor, level)
-        if t is None:
-            # nema zadatka za ovaj nivo — nazad na listu nivoa
-            self._to_levels()
-            return
         title = f"Floor {floor} - Level {level}"
         if t["type"] == "quiz":
             self.quiz.load(title, t["code"], t["options"], t["answer"])
@@ -350,11 +325,7 @@ class PlayPage(QStackedWidget):
         progress.mark(self.floor, self.level)
 
     def _next(self):
-        # predji na sledeci nivo koji ima zadatak; ako nema, vrati se na listu
-        nxt = self.level + 1
-        while nxt <= hotel.LEVELS:
-            if tasks.get_task(self.floor, nxt) is not None:
-                self._open_level(self.floor, nxt)
-                return
-            nxt += 1
-        self._to_levels()
+        if self.level < hotel.LEVELS:
+            self._open_level(self.floor, self.level + 1)
+        else:
+            self._to_levels()

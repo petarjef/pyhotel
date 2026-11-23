@@ -9,21 +9,11 @@ from PySide6.QtWidgets import (
 )
 
 BASE = Path(__file__).parent
-BOOK_DIR = BASE / "book"
-LESSONS_DIR = BASE / "lessons_html"
+BOOK_BASE = "https://dazdejkovic.github.io/OI_25_jb1/"  # knjiga se cita online
 
 
 def book_url(file):
-    return QUrl.fromLocalFile(str(BOOK_DIR / file))
-
-
-def find_lessons():
-    if not LESSONS_DIR.exists():
-        return []
-    return sorted(LESSONS_DIR.glob("*.html"), key=lambda f: f.name.lower())
-
-
-MOODLE = find_lessons()
+    return QUrl(BOOK_BASE + file)
 
 SECTIONS = [
     ("Knjiga", [
@@ -72,9 +62,9 @@ QPushButton#cover {
     background: #4b8bbe; border: 4px solid #0d1828; border-left: 24px solid #1d2f4a;
 }
 QPushButton#cover:hover { background: #5a9bd0; }
-QLabel#c1 { color: #ffd43b; font-size: 18px; }
-QLabel#c2 { color: #ffffff; font-size: 9px; }
-QLabel#c3 { color: #cfe3f7; font-size: 7px; }
+QLabel#c1 { color: #ffd43b; font-size: 26px; }
+QLabel#c2 { color: #ffffff; font-size: 13px; }
+QLabel#c3 { color: #cfe3f7; font-size: 10px; }
 QLabel#hint { color: #ffffff; font-size: 9px; }
 QPushButton#lec, QPushButton#book {
     background: #f4e9c8; color: #101826; border: 4px solid #0d1828;
@@ -103,15 +93,15 @@ class BookCover(QPushButton):
     def __init__(self):
         super().__init__()
         self.setObjectName("cover")
-        self.setFixedSize(240, 320)
+        self.setFixedSize(336, 448)
         self.setCursor(Qt.PointingHandCursor)
         lay = QVBoxLayout(self)
-        lay.setContentsMargins(20, 28, 14, 24)
+        lay.setContentsMargins(28, 40, 20, 34)
 
         row = QHBoxLayout()
-        row.setSpacing(10)
+        row.setSpacing(14)
         row.addStretch(1)
-        row.addWidget(PyLogo(36))
+        row.addWidget(PyLogo(52))
         title = QLabel("PYTHON")
         title.setObjectName("c1")
         title.setAttribute(Qt.WA_TransparentForMouseEvents)
@@ -145,6 +135,7 @@ class LecturesPage(QStackedWidget):
         lay = QVBoxLayout(page)
         lay.setContentsMargins(14, 20, 14, 20)
         lay.setSpacing(12)
+        lay.addStretch(1)
 
         cover = BookCover()
         cover.clicked.connect(lambda: self.setCurrentIndex(1))
@@ -154,27 +145,6 @@ class LecturesPage(QStackedWidget):
         hint.setObjectName("hint")
         hint.setAlignment(Qt.AlignCenter)
         lay.addWidget(hint)
-
-        lay.addSpacing(16)
-        head = QLabel("Moodle prezentacije")
-        head.setObjectName("head")
-        lay.addWidget(head)
-
-        if not MOODLE:
-            empty = QLabel("Jos nema prezentacija.")
-            empty.setObjectName("hint")
-            lay.addWidget(empty)
-        for f in MOODLE:
-            title = f.stem.replace("_", " ")
-            b = QPushButton(title)
-            b.setObjectName("lec")
-            b.setCursor(Qt.PointingHandCursor)
-            b.clicked.connect(
-                lambda _=False, p=f, t=title, btn=b: self.open_page(
-                    QUrl.fromLocalFile(str(p)), t, btn, back=0
-                )
-            )
-            lay.addWidget(b)
 
         lay.addStretch(1)
         return page
