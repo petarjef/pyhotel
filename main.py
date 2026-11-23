@@ -1,12 +1,11 @@
 import sys
 import ctypes
 from pathlib import Path
-from PySide6.QtGui import QIcon
 from lectures import LecturesPage
 from ai import ChatPage
 from play import PlayPage
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QFont, QFontDatabase
+from PySide6.QtGui import QFont, QFontDatabase, QIcon
 from PySide6.QtWidgets import (
     QApplication, QButtonGroup, QHBoxLayout,
     QPushButton, QStackedWidget, QVBoxLayout, QWidget,
@@ -97,4 +96,5 @@ def main():
     sys.exit(app.exec())
 
 
-main()
+if __name__ == "__main__":
+    main()

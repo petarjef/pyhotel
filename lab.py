@@ -1,12 +1,13 @@
+import base64
 import queue
 import re
 
 from jupyter_client.manager import start_new_kernel
 from PySide6.QtCore import QTimer, Qt, Signal
-from PySide6.QtGui import QFont, QTextCursor
+from PySide6.QtGui import QFont, QPixmap, QTextCursor
 from PySide6.QtWidgets import (
     QApplication, QHBoxLayout, QLabel, QLineEdit,
-    QPlainTextEdit, QPushButton, QVBoxLayout, QWidget,
+    QPlainTextEdit, QPushButton, QScrollArea, QVBoxLayout, QWidget,
 )
 
 ANSI = re.compile(r"\x1b\[[0-9;]*[A-Za-z]")
@@ -25,6 +26,8 @@ QPushButton#lbtn:hover { background: #ffe066; }
 QPushButton#lbtn:disabled { background: #7d7a5c; color: #3b3b3b; }
 QPlainTextEdit#code { background: #101826; color: #e8f1ff; border: none; padding: 8px; }
 QPlainTextEdit#out { background: #0a1220; color: #9be28f; border: none; padding: 8px; }
+QScrollArea#imgs { background: #0a1220; border: none; }
+QWidget#imgbox { background: #0a1220; }
 QLineEdit#inp {
     background: #f4e9c8; color: #101826; border: 4px solid #0d1828; padding: 8px;
 }
@@ -102,6 +105,20 @@ class CodeLab(QWidget):
         self.out.setFont(mono)
         lay.addWidget(self.out, 2)
 
+        # grafici (matplotlib) se prikazuju kao slike ispod teksta, kao u web verziji
+        self.img_box = QWidget()
+        self.img_box.setObjectName("imgbox")
+        self.img_lay = QVBoxLayout(self.img_box)
+        self.img_lay.setContentsMargins(8, 8, 8, 8)
+        self.img_lay.setSpacing(8)
+        self.imgs = QScrollArea()
+        self.imgs.setObjectName("imgs")
+        self.imgs.setWidgetResizable(True)
+        self.imgs.setMaximumHeight(240)
+        self.imgs.setWidget(self.img_box)
+        self.imgs.hide()
+        lay.addWidget(self.imgs)
+
         self.inp = QLineEdit()
         self.inp.setObjectName("inp")
         self.inp.setFont(mono)
@@ -119,6 +136,22 @@ class CodeLab(QWidget):
         self.timer.timeout.connect(self._poll)
         self._set_running(False)
 
+    def _clear_images(self):
+        while self.img_lay.count():
+            w = self.img_lay.takeAt(0).widget()
+            if w is not None:
+                w.deleteLater()
+        self.imgs.hide()
+
+    def _show_image(self, b64):
+        pix = QPixmap()
+        if not pix.loadFromData(base64.b64decode(b64), "PNG"):
+            return
+        label = QLabel()
+        label.setPixmap(pix.scaledToWidth(min(pix.width(), 360), Qt.SmoothTransformation))
+        self.img_lay.addWidget(label)
+        self.imgs.show()
+
     def _btn(self, text):
         b = QPushButton(text)
         b.setObjectName("lbtn")
@@ -130,6 +163,7 @@ class CodeLab(QWidget):
         html = task_text.replace("\n", "<br>")
         self.task.setText(f'<div style="line-height: 160%;">{html}</div>')
         self.code.setPlainText(starter)
+        self._clear_images()
         self.out.setPlainText("Starting Python..." if not self.kc else "")
         self.code.setFocus()
         QTimer.singleShot(40, self._boot)
@@ -176,6 +210,7 @@ class CodeLab(QWidget):
         if self.running or not self.ensure_kernel():
             return
         self.out.clear()
+        self._clear_images()
         self.msg_id = self.kc.execute(self.code.toPlainText())
         self._set_running(True)
 
@@ -199,6 +234,7 @@ class CodeLab(QWidget):
             return
         self.msg_id = None
         self._set_running(False)
+        self._clear_images()
         self.out.setPlainText("Python restarted. All variables are cleared.")
 
     def _set_running(self, on):
@@ -213,25 +249,23 @@ class CodeLab(QWidget):
         if not self.kc:
             return
         try:
-            while True:
-                self._handle(self.kc.get_iopub_msg(timeout=0))
-        except queue.Empty:
-            pass
-        except Exception:
-            # kernel je verovatno umro — zaustavi polling i resetuj stanje
+            try:
+                while True:
+                    self._handle(self.kc.get_iopub_msg(timeout=0))
+            except queue.Empty:
+                pass
+            try:
+                msg = self.kc.get_stdin_msg(timeout=0)
+                if msg["msg_type"] == "input_request":
+                    self._write(msg["content"]["prompt"])
+                    self.inp.show()
+                    self.inp.setFocus()
+            except queue.Empty:
+                pass
+        except Exception as ex:
+            # kernel je verovatno umro: zaustavi polling i resetuj stanje
             self.shutdown()
-            self.out.appendPlainText("\n[kernel se ugasio]")
-            return
-        try:
-            msg = self.kc.get_stdin_msg(timeout=0)
-            if msg["msg_type"] == "input_request":
-                self._write(msg["content"]["prompt"])
-                self.inp.show()
-                self.inp.setFocus()
-        except queue.Empty:
-            pass
-        except Exception:
-            pass
+            self.out.appendPlainText(f"\n[kernel se ugasio: {type(ex).__name__}]")
 
     def _handle(self, msg):
         if msg["parent_header"].get("msg_id") != self.msg_id:
@@ -240,9 +274,11 @@ class CodeLab(QWidget):
         if t == "stream":
             self._write(c["text"])
         elif t in ("execute_result", "display_data"):
-            txt = c["data"].get("text/plain")
-            if txt:
-                self._write(txt + "\n")
+            data = c["data"]
+            if "image/png" in data:  # grafik: prikazi sliku umesto teksta "<Figure ...>"
+                self._show_image(data["image/png"])
+            elif data.get("text/plain"):
+                self._write(data["text/plain"] + "\n")
         elif t == "error":
             self._write(ANSI.sub("", "\n".join(c["traceback"])) + "\n")
         elif t == "status" and c.get("execution_state") == "idle":

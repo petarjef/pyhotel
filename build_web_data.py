@@ -27,9 +27,8 @@ def load_sections():
     raise SystemExit("SECTIONS nije nadjen u lectures.py")
 
 
-def main():
-    t = load_tasks()
-    sections = load_sections()
+def build_js(t, sections):
+    """Vraca tekst docs/data.js (bez resenja zadataka)."""
     lessons = [title for _, items in sections[1:] for f, title in items if f not in SKIP]
 
     quiz = {str(k): [{"code": c, "options": o, "answer": a} for c, o, a in v]
@@ -40,12 +39,19 @@ def main():
     topics = [{"title": name, "items": [{"file": f, "title": title} for f, title in items]}
               for name, items in sections]
 
-    out = "window.HOTEL_DATA = " + json.dumps(
+    return "window.HOTEL_DATA = " + json.dumps(
         {"lessons": lessons, "quiz": quiz, "code": code, "topics": topics},
         ensure_ascii=False, indent=1) + ";\n"
+
+
+def main():
+    t = load_tasks()
+    sections = load_sections()
+    out = build_js(t, sections)
     (BASE / "docs" / "data.js").write_text(out, encoding="utf-8")
-    print(f"docs/data.js: {len(lessons)} spratova, {sum(map(len, quiz.values()))} kviz pitanja, "
-          f"{sum(map(len, code.values()))} zadataka za kod")
+    n_lessons = sum(len(items) for _, items in sections[1:]) - 1
+    print(f"docs/data.js: {n_lessons} spratova, {sum(map(len, t.QUIZ.values()))} kviz pitanja, "
+          f"{sum(map(len, t.CODE.values()))} zadataka za kod")
 
 
 if __name__ == "__main__":

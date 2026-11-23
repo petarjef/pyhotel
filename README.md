@@ -23,6 +23,18 @@ first installation takes a few minutes and needs an internet connection.
 Windows may show a "protected your PC" warning because the installer is not
 signed. Click **More info**, then **Run anyway**.
 
+## Run from source
+
+```bash
+python -m venv .venv
+.venv\Scripts\activate      # Linux/Mac: source .venv/bin/activate
+pip install -r requirements.txt
+python main.py
+```
+
+After editing `tasks.py` run `python build_web_data.py` (updates the web version)
+and `python verify_tasks.py` (checks every task and quiz). More in `documentation/`.
+
 ## Features
 
 - **Hotel:** every floor is a lesson, with 12 levels each (quizzes and coding tasks).

@@ -24,8 +24,6 @@ LESSONS = [
     if file not in SKIP
 ]
 LEVELS = 12        # nivoa po spratu
-DONE_FLOORS = 0    # koliko spratova je zavrseno (kasnije iz sacuvanog progresa)
-PROGRESS = {}      # sprat (0, 1, 2...) -> koliko nivoa je zavrseno
 
 # ---- Boje ----
 DARK = "#0d1828"
@@ -82,7 +80,6 @@ class Hotel(QWidget):
         self.y_lobby = self.y_floors + self.n * FLOOR_H
         self.setFixedSize(W, self.y_lobby + LOBBY_H)
         self.setMouseTracking(True)
-        self.blink = False
         self.door_hover = False
         self.confetti = []
 
@@ -202,16 +199,14 @@ class Hotel(QWidget):
         p.setFont(self.f8)
         fm = QFontMetrics(self.f8)
         txt = fm.elidedText(f"{i + 1}. {LESSONS[i]}", Qt.ElideRight, BW - 60)
-        extra = 0
-        bw, bh = fm.horizontalAdvance(txt) + 24 + extra, 30
+        bw, bh = fm.horizontalAdvance(txt) + 24, 30
         bx, by = W // 2 - bw // 2, y - 4
         color = {"cur": "#ffd43b", "done": "#6bd16b", "locked": "#8b8f98"}[state]
         fr(p, bx + 3, by + 3, bw, bh, DARK)
         fr(p, bx, by, bw, bh, DARK)
         fr(p, bx + 4, by + 4, bw - 8, bh - 8, color)
         p.setPen(QColor(INK))
-        p.drawText(QRect(bx + 4, by + 4, bw - 8 - extra, bh - 8), Qt.AlignCenter, txt)
-        
+        p.drawText(QRect(bx + 4, by + 4, bw - 8, bh - 8), Qt.AlignCenter, txt)
 
         # brojac nivoa
         n_done = progress.done_count(i + 1)
@@ -380,8 +375,6 @@ class HotelPage(QWidget):
     def _frame(self):
         self.tick += 1
         self.hotel.step_confetti(self.tick)
-        if self.tick % 13 == 0:
-            self.hotel.blink = not self.hotel.blink
         self.update()
 
     def paintEvent(self, ev):
