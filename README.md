@@ -26,6 +26,18 @@ signed. Click **More info**, then **Run anyway**.
   It uses Google Gemini with your own free API key (see below).
 - Progress is saved locally on your computer.
 
+## Web version
+
+The browser version lives in `docs/` and is served by GitHub Pages. It is plain HTML and JavaScript, no build step. The floors, quizzes and tasks come from `tasks.py`, copied into `docs/data.js`. After you change `tasks.py`, run:
+
+```
+python build_web_data.py
+```
+
+The Code Lab runs Python in the browser with [Pyodide](https://pyodide.org). The first run downloads Python, and the first use of NumPy, Pandas, SciPy or scikit-learn downloads those too, so it can take a while on a slow connection. `input()` reads from the box under the editor, one line per answer. In the AI tutor, the Gemini key is stored in your browser only (localStorage). Progress is saved per browser.
+
+To try it locally: `python -m http.server -d docs`, then open http://localhost:8000.
+
 ## Run from source
 
 Requires Python 3.12 or newer.

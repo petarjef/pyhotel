@@ -1,0 +1,51 @@
+"""Generise docs/data.js iz tasks.py i lectures.py.
+
+Pokreni iz korena repoa kad god menjas zadatke:  python build_web_data.py
+(Ne uvozi PySide6, cita samo podatke.)
+"""
+import ast
+import importlib.util
+import json
+from pathlib import Path
+
+BASE = Path(__file__).parent
+SKIP = {"ML_25_01_Uvod_1.html"}  # isto kao u hotel.py
+
+
+def load_tasks():
+    spec = importlib.util.spec_from_file_location("tasks", BASE / "tasks.py")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def load_sections():
+    tree = ast.parse((BASE / "lectures.py").read_text(encoding="utf-8"))
+    for node in tree.body:
+        if isinstance(node, ast.Assign) and getattr(node.targets[0], "id", "") == "SECTIONS":
+            return ast.literal_eval(node.value)
+    raise SystemExit("SECTIONS nije nadjen u lectures.py")
+
+
+def main():
+    t = load_tasks()
+    sections = load_sections()
+    lessons = [title for _, items in sections[1:] for f, title in items if f not in SKIP]
+
+    quiz = {str(k): [{"code": c, "options": o, "answer": a} for c, o, a in v]
+            for k, v in t.QUIZ.items()}
+    # resenja se ne ukljucuju u web verziju
+    code = {str(k): [{"text": x, "expected": e, "starter": s} for x, e, s, _sol in v]
+            for k, v in t.CODE.items()}
+    topics = [{"title": name, "items": [title for f, title in items]} for name, items in sections]
+
+    out = "window.HOTEL_DATA = " + json.dumps(
+        {"lessons": lessons, "quiz": quiz, "code": code, "topics": topics},
+        ensure_ascii=False, indent=1) + ";\n"
+    (BASE / "docs" / "data.js").write_text(out, encoding="utf-8")
+    print(f"docs/data.js: {len(lessons)} spratova, {sum(map(len, quiz.values()))} kviz pitanja, "
+          f"{sum(map(len, code.values()))} zadataka za kod")
+
+
+if __name__ == "__main__":
+    main()

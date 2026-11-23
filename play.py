@@ -1,3 +1,5 @@
+import re
+
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import (
@@ -208,8 +210,18 @@ class QuizPage(QWidget):
             self.msg.setText("Netacno, probaj ponovo.")
 
 
+# Broj bez slova/tacke oko sebe (20, 20.0, -3.50). Tako "20" i "20.0" postaju isto.
+_NUM = re.compile(r"(?<![\w.])-?\d+(?:\.\d+)?(?![\w.])")
+
+
+def _canon_num(m):
+    v = float(m.group(0))
+    return str(int(v)) if v == int(v) and abs(v) < 2**53 else repr(v)
+
+
 def _norm(s):
-    return "\n".join(line.rstrip() for line in s.strip().splitlines())
+    s = "\n".join(line.rstrip() for line in s.strip().splitlines())
+    return _NUM.sub(_canon_num, s)
 
 
 class TaskLab(CodeLab):

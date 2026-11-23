@@ -91,24 +91,38 @@ def shown_from(history):
         ("me" if m["role"] == "user" else "bot", m["content"]) for m in history
     ]
 
+def _plain_html(lines):
+    part = html.escape("\n".join(lines))
+    part = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", part)
+    part = re.sub(
+        r"`([^`]+)`",
+        r'<span style="background-color:#e3d6aa; font-family:Consolas;">\1</span>',
+        part,
+    )
+    return part.replace("\n", "<br>")
+
+
 def fmt(text):
-    """Pretvara tekst sa ``` blokovima u HTML koji Qt razume."""
-    if text.count("```") % 2:
-        text += "\n```"  # blok se jos pise (streaming)
-    parts = re.split(r"```(?:python|py)?\n?(.*?)```", text, flags=re.S)
-    out = []
-    for n, part in enumerate(parts):
-        part = html.escape(part)
-        if n % 2:
-            out.append(f"<pre {PRE}>{part.strip(chr(10))}</pre>")
+    """Pretvara tekst sa ``` blokovima u HTML koji Qt razume.
+
+    Blok koda se otvara i zatvara samo linijom koja POCINJE sa ```, pa neparan
+    broj ``` usred teksta ne pretvara ostatak poruke u kod. Blok koji se jos
+    strimuje (nije zatvoren) se prikazuje kao kod do kraja teksta.
+    """
+    out, buf, in_code = [], [], False
+    for line in text.split("\n"):
+        if line.lstrip().startswith("```"):
+            if in_code:
+                out.append(f"<pre {PRE}>{html.escape(chr(10).join(buf))}</pre>")
+            elif buf:
+                out.append(_plain_html(buf))
+            buf, in_code = [], not in_code
         else:
-            part = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", part)
-            part = re.sub(
-                r"`([^`]+)`",
-                r'<span style="background-color:#e3d6aa; font-family:Consolas;">\1</span>',
-                part,
-            )
-            out.append(part.replace("\n", "<br>"))
+            buf.append(line)
+    if in_code:
+        out.append(f"<pre {PRE}>{html.escape(chr(10).join(buf))}</pre>")
+    elif buf:
+        out.append(_plain_html(buf))
     return "".join(out)
 
 
