@@ -6,7 +6,7 @@ English version: `AUDIT.en.md`.
 
 ## 1. Kratak zaključak
 
-Igra **radi**: desktop i web verzija prošle su sve funkcionalne provere koje su mogle da se izvedu. Svih 156 programerskih zadataka i 122 od 156 kviz pitanja automatski su potvrđeni izvršavanjem koda; preostalih 34 (konceptualna pitanja) pregledana su ručno i tačna su. Najozbiljniji problem je **nedostajući `requirements.txt`**, zbog kog bi Windows instaler pao. Ostalo su manje greške i nedoslednosti.
+Igra **radi**: desktop i web verzija prošle su sve funkcionalne provere koje su mogle da se izvedu. Svih 156 programerskih zadataka i 122 od 156 kviz pitanja automatski su potvrđeni izvršavanjem koda; preostalih 34 (konceptualna pitanja) pregledana su ručno i tačna su. Najozbiljniji problem je **nedostajući `requirements.txt`**, zbog kog bi Windows instaler pao. Ostalo su manje greške i nedoslednosti. **Odeljak 3 opisuje stanje pre popravki; šta je od toga popravljeno vidi se u odeljku 4.**
 
 ## 2. Šta je proveravano i kako
 

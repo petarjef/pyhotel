@@ -6,7 +6,7 @@ Srpska verzija: `AUDIT.sr.md`.
 
 ## 1. Summary
 
-The game **works**: both the desktop and web versions passed every functional check that could be run. All 156 coding tasks and 122 of the 156 quiz questions were confirmed automatically by executing the code; the remaining 34 (conceptual questions) were reviewed by hand and are correct. The most serious problem is the **missing `requirements.txt`**, which would make the Windows installer fail. The rest are minor bugs and inconsistencies.
+The game **works**: both the desktop and web versions passed every functional check that could be run. All 156 coding tasks and 122 of the 156 quiz questions were confirmed automatically by executing the code; the remaining 34 (conceptual questions) were reviewed by hand and are correct. The most serious problem is the **missing `requirements.txt`**, which would make the Windows installer fail. The rest are minor bugs and inconsistencies. **Section 3 describes the state before the fixes; section 4 shows what has been fixed since.**
 
 ## 2. What was checked and how
 
