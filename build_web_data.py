@@ -37,7 +37,8 @@ def main():
     # resenja se ne ukljucuju u web verziju
     code = {str(k): [{"text": x, "expected": e, "starter": s} for x, e, s, _sol in v]
             for k, v in t.CODE.items()}
-    topics = [{"title": name, "items": [title for f, title in items]} for name, items in sections]
+    topics = [{"title": name, "items": [{"file": f, "title": title} for f, title in items]}
+              for name, items in sections]
 
     out = "window.HOTEL_DATA = " + json.dumps(
         {"lessons": lessons, "quiz": quiz, "code": code, "topics": topics},

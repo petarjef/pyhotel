@@ -2479,49 +2479,133 @@ window.HOTEL_DATA = {
   {
    "title": "Knjiga",
    "items": [
-    "Uvod"
+    {
+     "file": "OI_25_00_uvod.html",
+     "title": "Uvod"
+    }
    ]
   },
   {
    "title": "Osnove Pajtona",
    "items": [
-    "Osnove programiranja",
-    "Pajton okruzenje",
-    "Osnovni elementi jezika",
-    "Logicke promenljive",
-    "Stringovi",
-    "Liste",
-    "Jos o stringovima i listama",
-    "Moduli",
-    "Torke, skupovi i recnici",
-    "Naredbe grananja",
-    "Petlje",
-    "Funkcije",
-    "Rad sa datotekama",
-    "Upravljanje greskama",
-    "Klase",
-    "Regularni izrazi"
+    {
+     "file": "OI_25_01_Osnove.html",
+     "title": "Osnove programiranja"
+    },
+    {
+     "file": "OI_25_02_Python_instalacija.html",
+     "title": "Pajton okruzenje"
+    },
+    {
+     "file": "OI_25_03_Elementi_Pajtona.html",
+     "title": "Osnovni elementi jezika"
+    },
+    {
+     "file": "OI_25_04_logicke_input.html",
+     "title": "Logicke promenljive"
+    },
+    {
+     "file": "OI_25_05_stringovi.html",
+     "title": "Stringovi"
+    },
+    {
+     "file": "OI_25_06_liste_uvod.html",
+     "title": "Liste"
+    },
+    {
+     "file": "OI_25_07_stringovi_liste_napredno.html",
+     "title": "Jos o stringovima i listama"
+    },
+    {
+     "file": "OI_25_08_moduli.html",
+     "title": "Moduli"
+    },
+    {
+     "file": "OI_25_09_torke_skupovi_recnici.html",
+     "title": "Torke, skupovi i recnici"
+    },
+    {
+     "file": "OI_25_10_naredbe_grananja.html",
+     "title": "Naredbe grananja"
+    },
+    {
+     "file": "OI_25_11_petlje.html",
+     "title": "Petlje"
+    },
+    {
+     "file": "OI_25_12_funkcije.html",
+     "title": "Funkcije"
+    },
+    {
+     "file": "OI_25_14_rad_sa_datotekama.html",
+     "title": "Rad sa datotekama"
+    },
+    {
+     "file": "OI_25_15_upravljanje_greskama.html",
+     "title": "Upravljanje greskama"
+    },
+    {
+     "file": "OI_25_16_klase.html",
+     "title": "Klase"
+    },
+    {
+     "file": "OI_26_01_Regularni_izrazi.html",
+     "title": "Regularni izrazi"
+    }
    ]
   },
   {
    "title": "Poslovno odlucivanje",
    "items": [
-    "Uvod u NumPy",
-    "Matplotlib",
-    "Monte Karlo simulacije",
-    "Pandas",
-    "Optimizacija: SciPy"
+    {
+     "file": "OI_25_17_NumPy.html",
+     "title": "Uvod u NumPy"
+    },
+    {
+     "file": "OI_25_18_Matplotlib.html",
+     "title": "Matplotlib"
+    },
+    {
+     "file": "OI_25_19_Simulacije.html",
+     "title": "Monte Karlo simulacije"
+    },
+    {
+     "file": "OI_25_20_Pandas.html",
+     "title": "Pandas"
+    },
+    {
+     "file": "OI_25_21_SciPy.html",
+     "title": "Optimizacija: SciPy"
+    }
    ]
   },
   {
    "title": "Masinsko ucenje",
    "items": [
-    "Uvod",
-    "Nadgledano ucenje",
-    "Naivni Bajesovi klasifikatori",
-    "K najblizih suseda",
-    "Stabla odlucivanja",
-    "Ansambl metode"
+    {
+     "file": "ML_25_01_Uvod_1.html",
+     "title": "Uvod"
+    },
+    {
+     "file": "ML_25_02_Nadgledano_ucenje.html",
+     "title": "Nadgledano ucenje"
+    },
+    {
+     "file": "ML_25_03_Naivni_Bajes.html",
+     "title": "Naivni Bajesovi klasifikatori"
+    },
+    {
+     "file": "ML_25_04_KNN.html",
+     "title": "K najblizih suseda"
+    },
+    {
+     "file": "ML_25_05_Stabla_odlucivanja.html",
+     "title": "Stabla odlucivanja"
+    },
+    {
+     "file": "ML_25_06_Ansambl_metode.html",
+     "title": "Ansambl metode"
+    }
    ]
   }
  ]

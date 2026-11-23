@@ -63,9 +63,11 @@ h2.big { font-size: 16px; }
 .c3 { color: #cfe3f7; font-size: 10px; line-height: 1.6; }
 .topic-h { color: var(--yellow); font-size: 9px; margin: 18px 0 8px; }
 .topic {
+  display: block; text-decoration: none; cursor: pointer;
   background: var(--paper); color: var(--ink); border: 4px solid var(--dark); padding: 10px;
   font-size: 8px; line-height: 1.6; margin-bottom: 8px;
 }
+.topic:hover { background: #fff3c4; }
 
 /* hotel */
 #hotelScroll { overflow-x: hidden; }

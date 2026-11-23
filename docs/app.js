@@ -34,8 +34,11 @@ function showView(page, id) {
 }
 
 /* ---------------- lectures ---------------- */
+const BOOK_BASE = "https://dazdejkovic.github.io/OI_25_jb1/";
 $("topics").innerHTML = TOPICS.slice(1).map((s) =>
-  `<div class="topic-h">${esc(s.title)}</div>` + s.items.map((t) => `<div class="topic">${esc(t)}</div>`).join("")
+  `<div class="topic-h">${esc(s.title)}</div>` + s.items.map((t) =>
+    `<a class="topic" href="${BOOK_BASE}${esc(t.file)}" target="_blank" rel="noopener">${esc(t.title)}</a>`
+  ).join("")
 ).join("");
 
 function esc(s) {
