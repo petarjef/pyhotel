@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="sr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1d2f4a">
+<title>Python Hotel</title>
+<link rel="icon" href="assets/icon.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<canvas id="sky"></canvas>
+
+<div id="app">
+  <header id="tabs">
+    <button data-tab="lectures">Lectures</button>
+    <button data-tab="play" class="play">PLAY</button>
+    <button data-tab="ai">Help AI</button>
+  </header>
+
+  <main>
+    <!-- LECTURES -->
+    <section id="page-lectures" class="page">
+      <div id="v-cover" class="view">
+        <div id="coverWrap">
+          <button type="button" id="cover">
+            <img src="assets/python_logo.png" alt="">
+            <span class="c1">PYTHON</span>
+            <span class="c2">Poslovno odlucivanje i masinsko ucenje</span>
+            <span class="c3">Azdejkovic<br><br>Radojicic<br><br>Stamenkovic</span>
+          </button>
+          <p class="hint">CLICK TO OPEN</p>
+        </div>
+      </div>
+      <div id="v-toc" class="view" hidden>
+        <div class="scroll pad">
+          <button class="ybtn" id="tocBack">&lt; BOOK</button>
+          <div id="topics"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PLAY -->
+    <section id="page-play" class="page">
+      <div id="v-hotel" class="view">
+        <div id="hotelScroll" class="scroll">
+          <canvas id="hotel"></canvas>
+          <div id="ground"></div>
+        </div>
+        <div id="clouds">
+          <canvas id="cloudUp" width="64" height="42" aria-label="Scroll up"></canvas>
+          <canvas id="cloudDown" width="64" height="42" aria-label="Scroll down"></canvas>
+        </div>
+      </div>
+
+      <div id="v-levels" class="view" hidden>
+        <div class="scroll pad">
+          <button class="ybtn" id="levelsBack">&lt; HOTEL</button>
+          <h2 id="levelsTitle"></h2>
+          <div id="levelsGrid"></div>
+        </div>
+      </div>
+
+      <div id="v-quiz" class="view" hidden>
+        <div class="scroll pad">
+          <button class="ybtn" id="quizBack">&lt; BACK</button>
+          <h2 id="quizTitle"></h2>
+          <pre id="quizCode"></pre>
+          <div id="quizOpts"></div>
+          <p id="quizMsg"></p>
+          <button class="ybtn" id="quizNext" hidden>NEXT &gt;</button>
+        </div>
+      </div>
+
+      <div id="v-lab" class="view lab" hidden>
+        <div class="bar">
+          <button class="ybtn" id="labBack">&lt; BACK</button>
+          <button class="ybtn" id="labRun">RUN</button>
+          <button class="ybtn" id="labStop" disabled>STOP</button>
+          <button class="ybtn" id="labReset">RESET</button>
+          <button class="ybtn" id="labCheck">CHECK</button>
+          <button class="ybtn" id="labNext" hidden>NEXT &gt;</button>
+        </div>
+        <div id="labTask"></div>
+        <textarea id="labCode" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off"></textarea>
+        
+        <textarea id="labStdinBox" spellcheck="false" hidden placeholder="Ulaz za input(): svaka linija je jedan odgovor"></textarea>
+        <div id="labStatus"></div>
+        <pre id="labOut"></pre>
+        <div id="labImgs"></div>
+      </div>
+    </section>
+
+    <!-- AI -->
+    <section id="page-ai" class="page">
+      <div id="v-chat" class="view">
+        <div class="bar">
+          <span id="aiWho"></span>
+          <button class="ybtn" id="aiAccount">ACCOUNT</button>
+          <button class="ybtn" id="aiClear">NEW CHAT</button>
+        </div>
+        <div id="chatLog" class="scroll"></div>
+        <form id="chatForm">
+          <input id="chatInput" placeholder="Ask about Python..." autocomplete="off">
+          <button class="ybtn" id="chatSend" type="submit">SEND</button>
+        </form>
+      </div>
+      <div id="v-account" class="view" hidden>
+        <div class="scroll pad">
+          <button class="ybtn" id="accBack">&lt; BACK</button>
+          <h2 class="big">ACCOUNT</h2>
+          <p class="note">Monty Python koristi Google Gemini sa tvojim besplatnim API kljucem. Kljuc se cuva samo u ovom browseru (localStorage) i salje se direktno Google-u. Na tudjem racunaru ga ne unosi.</p>
+          <label class="flabel" for="accKey">API kljuc</label>
+          <input id="accKey" type="password" autocomplete="off" spellcheck="false">
+          <label class="flabel" for="accModel">Model</label>
+          <input id="accModel" autocomplete="off" spellcheck="false">
+          <div class="row">
+            <a class="ybtn" href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">GET KEY</a>
+            <button class="ybtn" id="accSave">SAVE</button>
+          </div>
+          <p id="accStatus" class="note"></p>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
