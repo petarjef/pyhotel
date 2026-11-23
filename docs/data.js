@@ -1947,7 +1947,7 @@ window.HOTEL_DATA = {
     "starter": "ocena = 85\n"
    },
    {
-    "text": "Koristi terarni operator da u jednoj liniji ispises 'Punoletan' ako je godine >= 18, inace 'Maloletan'. (godine = 20)",
+    "text": "Koristi ternarni operator da u jednoj liniji ispises 'Punoletan' ako je godine >= 18, inace 'Maloletan'. (godine = 20)",
     "expected": "Punoletan",
     "starter": "godine = 20\n"
    },
@@ -2188,34 +2188,34 @@ window.HOTEL_DATA = {
   ],
   "18": [
    {
-    "text": "Uvezi matplotlib.pyplot kao plt. Napravi linijski grafik za x = [1, 2, 3] i y = [2, 4, 6]. (Samo napravi, ne moras da prikazes).",
-    "expected": "",
-    "starter": "import matplotlib.pyplot as plt\n"
+    "text": "Napravi linijski grafik za x = [1, 2, 3] i y = [2, 4, 6] (plt.plot). Zatim ispisi broj linija na grafiku: print(len(plt.gca().lines)).",
+    "expected": "1",
+    "starter": "import matplotlib.pyplot as plt\nplt.close('all')\n"
    },
    {
-    "text": "Napravi grafik koji prikazuje y = [5, 3, 8]. Postavi naslov na 'Moj grafik'.",
-    "expected": "",
-    "starter": "import matplotlib.pyplot as plt\n"
+    "text": "Napravi grafik koji prikazuje y = [5, 3, 8] i postavi naslov na 'Moj grafik'. Zatim ispisi naslov: print(plt.gca().get_title()).",
+    "expected": "Moj grafik",
+    "starter": "import matplotlib.pyplot as plt\nplt.close('all')\n"
    },
    {
-    "text": "Napravi scatter grafik sa tackama x = [1, 2, 3] i y = [4, 5, 6].",
-    "expected": "",
-    "starter": "import matplotlib.pyplot as plt\n"
+    "text": "Napravi scatter grafik sa tackama x = [1, 2, 3] i y = [4, 5, 6]. Zatim ispisi broj skupova tacaka: print(len(plt.gca().collections)).",
+    "expected": "1",
+    "starter": "import matplotlib.pyplot as plt\nplt.close('all')\n"
    },
    {
-    "text": "Napravi stubasti grafik (bar) za kategorije ['A', 'B'] i vrednosti [10, 20].",
-    "expected": "",
-    "starter": "import matplotlib.pyplot as plt\n"
+    "text": "Napravi stubasti grafik (bar) za kategorije ['A', 'B'] i vrednosti [10, 20]. Zatim ispisi broj stubaca: print(len(plt.gca().patches)).",
+    "expected": "2",
+    "starter": "import matplotlib.pyplot as plt\nplt.close('all')\n"
    },
    {
-    "text": "Napravi grafik y = [1, 4, 9, 16]. Postavi oznaku x-ose na 'Vreme' i y-ose na 'Vrednost'.",
-    "expected": "",
-    "starter": "import matplotlib.pyplot as plt\n"
+    "text": "Napravi grafik y = [1, 4, 9, 16]. Postavi oznaku x-ose na 'Vreme' i y-ose na 'Vrednost'. Zatim ispisi obe oznake u jednom redu: print(plt.gca().get_xlabel(), plt.gca().get_ylabel()).",
+    "expected": "Vreme Vrednost",
+    "starter": "import matplotlib.pyplot as plt\nplt.close('all')\n"
    },
    {
-    "text": "Napravi grafik sa dve linije: y1 = [1, 2, 3] i y2 = [3, 2, 1]. Dodaj legendu sa imenima 'Rast' i 'Pad'.",
-    "expected": "",
-    "starter": "import matplotlib.pyplot as plt\n"
+    "text": "Napravi grafik sa dve linije: y1 = [1, 2, 3] i y2 = [3, 2, 1]. Dodaj legendu sa imenima 'Rast' i 'Pad'. Zatim ispisi imena iz legende: print([t.get_text() for t in plt.gca().get_legend().get_texts()]).",
+    "expected": "['Rast', 'Pad']",
+    "starter": "import matplotlib.pyplot as plt\nplt.close('all')\n"
    }
   ],
   "19": [

@@ -60,6 +60,8 @@ pyhotel/
 ├── lectures.py         ← spisak lekcija (SECTIONS) + čitač knjige
 ├── build_web_data.py   ← generiše docs/data.js iz tasks.py + lectures.py
 ├── make_release.py     ← priprema fascikle release/app za instaler
+├── requirements.txt    ← biblioteke (fiksirane verzije)
+├── verify_tasks.py     ← automatska provera svih zadataka, kvizova i data.js
 ├── installer.iss       ← skripta za Inno Setup (Windows instaler)
 ├── assets/             ← font, ikonica, Python logo
 ├── docs/               ← WEB verzija (GitHub Pages)
@@ -130,7 +132,7 @@ CODE[sprat] = [ (tekst_zadatka, očekivani_ispis, početni_kod, primer_rešenja)
 
 `get_task(floor, level)` pretvara (sprat, nivo) u rečnik:
 - neparan nivo → `QUIZ[floor][(level-1)//2]` → `{"type":"quiz","code","options","answer"}`
-- paran nivo → `CODE[floor][level//2 - 1]` → `{"type":"code","text","expected","starter","solution"}`
+- paran nivo → `CODE[floor][level//2 - 1]` → `{"type":"code","text","expected","starter"}` (**rešenje se namerno ne vraća**; ostaje samo u `tasks.py` za proveru)
 - vraća `None` ako sprat nema zadatke ili nivo nije 1–12.
 
 Primer: nivo 7 → `(7-1)//2 = 3` → četvrto kviz pitanje; nivo 8 → `8//2-1 = 3` → četvrti zadatak.
@@ -151,7 +153,7 @@ Promenljiva `S = ""` je samo prazan početni kod (skraćenica).
 - `STYLE` je **Qt stylesheet** (sličan CSS‑u) za dugmad tabova.
 - `MainWindow` ima zaglavlje od 3 dugmeta (`QPushButton`, `checkable`) u `QButtonGroup` (isključivi izbor) i `QStackedWidget` ispod. Klik na dugme menja `stack.setCurrentIndex(i)`. Početni tab je **PLAY**.
 - Na Windowsu poziva `SetCurrentProcessExplicitAppUserModelID` da traka zadataka prikaže našu ikonicu umesto Pythonove (u `try/except` jer na drugim sistemima ne postoji).
-- Napomena: `main()` se poziva na dnu fajla bez provere `__name__ == "__main__"`.
+- `main()` se poziva samo kad se fajl pokreće direktno (`if __name__ == "__main__":`), pa se `main.py` može bezbedno uvesti (npr. u testu).
 
 ### 6.2 `hotel.py` – izgled hotela
 
@@ -191,7 +193,7 @@ Klase:
 1. Klik na **CHECK** → `check()`: `captured = ""`, `checking = True`, pozove `run()`.
 2. Dok kernel šalje ispis, `_write()` (pregazena metoda) dodaje tekst i u `captured` i na ekran.
 3. Kad kernel javi da je završio (`_set_running(False)`), poredi se `_norm(captured)` sa `_norm(expected)`.
-4. `_norm` uklanja razmake na kraju svake linije i prazne linije na početku/kraju.
+4. `same_output` prvo poredi `_norm` verzije (uklanja razmake na kraju linija i prazne linije na početku/kraju), a zatim i verzije u kojima su brojevi svedeni na kanonski oblik (`_canon_nums`): `20` i `20.0` se smatraju istim. Isto pravilo ima i web (`LENIENT_NUMBERS`).
 5. Poklapanje → „>>> TACNO!“, prikaži NEXT, emituj `solved`. Inače → „>>> JOS NE. Trazeni output: …“.
 
 `PlayPage._solved` → `progress.mark(floor, level)`. `_next()` otvara sledeći nivo, ili vraća na listu nivoa posle 12.
@@ -218,8 +220,9 @@ Klase:
    - `execute_result` / `display_data` → tekstualni oblik rezultata (kao u Jupyteru, poslednji izraz se ispisuje);
    - `error` → traceback (ANSI boje se uklanjaju regexom `ANSI`);
    - `status: idle` → izvršavanje gotovo, `_set_running(False)`.
-5. `input()` → kernel šalje `input_request`; prikaže se `QLineEdit`, a Enter šalje `kc.input(text)`.
-6. **STOP** → `km.interrupt_kernel()` (kao Ctrl+C). **RESET** → `km.restart_kernel()` (brišu se sve promenljive). Pri gašenju aplikacije (`aboutToQuit`) poziva se `shutdown()`.
+5. **Grafici**: kad kernel pošalje `display_data` sa `image/png` (npr. `plt.show()`), `_show_image` dekodira PNG (base64), pravi `QPixmap` i prikazuje ga u `QScrollArea` ispod izlaza; slike se brišu pri sledećem pokretanju/RESET‑u.
+6. `input()` → kernel šalje `input_request`; prikaže se `QLineEdit`, a Enter šalje `kc.input(text)`.
+7. **STOP** → `km.interrupt_kernel()` (kao Ctrl+C). **RESET** → `km.restart_kernel()` (brišu se sve promenljive). Pri gašenju aplikacije (`aboutToQuit`) poziva se `shutdown()`.
 
 **Zašto kernel, a ne `exec()`/`subprocess`?** Promenljive ostaju između pokretanja (README to garantuje), a korisnički kod ne može da sruši samu igru jer radi u drugom procesu.
 
@@ -235,11 +238,11 @@ Klase:
 - **`Worker(QThread)`**: mrežni poziv radi u zasebnoj niti da se prozor ne zamrzne. Emituje `chunk(str)` za svaki deo odgovora (*streaming*) i `failed(str)` pri grešci. Greške se prevode u poruke: 400/401/403 neispravan ključ, 404 model ne postoji, 429 dostignut limit.
 - **`ChatWidget`**:
   - `history` (šalje se modelu, poslednjih 20 poruka, bez vodećih „assistant“ poruka) i `shown` (ono što korisnik vidi).
-  - `send()` dodaje poruku, pokreće `Worker`; `_on_chunk` nadovezuje tekst i ponovo iscrtava; `_on_fail` prikazuje grešku i izbacuje pitanje iz istorije; `_on_done` čuva odgovor u `chat_history.json`.
+  - `send()` dodaje poruku, pokreće `Worker`; `_on_chunk` nadovezuje tekst, a iscrtavanje je ograničeno na najviše jednom u 80 ms (`render_timer`), da dugi razgovori ne usporavaju; `_on_fail` prikazuje grešku i izbacuje pitanje iz istorije; `_on_done` čuva odgovor u `chat_history.json`.
   - `render()` pravi HTML za `QTextBrowser`.
 - **`fmt(text)`**: pretvara Markdown‑sličan tekst u HTML koji Qt razume. Blok koda otvara/zatvara samo linija koja **počinje** sa ```, a nezatvoren blok (stream u toku) prikazuje se kao kod do kraja. Običan tekst: `html.escape`, `**bold**`, `` `kod` ``. `html.escape` sprečava ubacivanje HTML‑a iz odgovora.
 - **`AccountPage`**: unos ključa (maskiran) i modela, dugme GET KEY otvara Google AI Studio.
-- Ključ je u običnom tekstu u `settings.json` (lokalno, nije u repou).
+- Ključ je u običnom tekstu u `settings.json` (lokalno, nije u repou). `save_settings` vraća `False` ako upis ne uspe, pa ACCOUNT prikazuje poruku.
 
 ### 6.7 `lectures.py`
 - `SECTIONS`: lista (naziv grupe, [(fajl, naslov), …]); to je i izvor za spratove.
@@ -295,8 +298,8 @@ Poruke Worker ↔ stranica (`postMessage`): `status`, `ready`, `out`, `figs`, `d
 | Python | Jupyter kernel (proces) | Pyodide (WASM) u Workeru |
 | Biblioteke | instalirane u venv | učitavaju se po potrebi sa CDN‑a |
 | STOP | prekid, promenljive ostaju | restart radnika, promenljive se brišu |
-| Grafikoni | ne prikazuju se (samo tekst figure) | prikazuju se kao slike |
-| Poređenje ispisa | strogo | blago (`20` = `20.0`) |
+| Grafikoni | prikazuju se kao slike ispod izlaza | prikazuju se kao slike ispod izlaza |
+| Poređenje ispisa | `20` = `20.0` (`same_output`) | `20` = `20.0` (`LENIENT_NUMBERS`) |
 | Progres | `progress.json` | `localStorage` |
 | Ključ AI | `settings.json` | `localStorage` |
 | Podaci | `tasks.py` direktno | `data.js` (generisan) |
@@ -308,16 +311,17 @@ Poruke Worker ↔ stranica (`postMessage`): `status`, `ready`, `out`, `figs`, `d
 1. **Izmena zadataka** → `python build_web_data.py` → komituj `docs/data.js`.
 2. **Web**: GitHub Pages servira fasciklu `docs/` (`.nojekyll` isključuje Jekyll obradu).
 3. **Windows instaler**:
-   - `python make_release.py` kopira projekat u `release/app` (izuzima `.venv`, `.git`, lične JSON fajlove…).
+   - `python make_release.py` kopira u `release/app` samo ono što igra treba (kod, `assets/`, `requirements.txt`); izuzima `docs/`, `documentation/`, lične JSON fajlove, alate. Odbija da radi ako nema `requirements.txt`.
    - Inno Setup kompajlira `installer.iss`: instalira u `%LOCALAPPDATA%\PythonHotel` (bez admin prava), traži Python 3.12–3.14 u registru, a ako ga nema, **skida Python 3.12.10**; pravi `.venv`, radi `pip install -r requirements.txt`; pravi prečice koje pokreću `pythonw.exe main.py`.
-   - ⚠ Fajl `requirements.txt` trenutno ne postoji u repou (vidi audit).
+
+### Provera zadataka
+`python verify_tasks.py` izvršava sva rešenja, proverava da početni kod sam ne prolazi, da kviz odgovori odgovaraju stvarnom ispisu i da je `docs/data.js` ažuran. Pokreni ga posle svake izmene `tasks.py`.
 
 ### Pokretanje iz izvornog koda (razvoj)
 ```bash
 python -m venv .venv
 .venv\Scripts\activate            # Linux/Mac: source .venv/bin/activate
-pip install PySide6 jupyter_client ipykernel google-genai \
-            numpy pandas scipy scikit-learn matplotlib
+pip install -r requirements.txt
 python main.py
 ```
 Web lokalno: `cd docs && python -m http.server 8000` pa `http://localhost:8000`.
@@ -367,7 +371,7 @@ Bez slika: sve su pravougaonici (`fillRect`) u petlji; sprat se crta od indeksa 
 Qt mehanizam obaveštavanja: objekat emituje signal (`Signal`), a drugi slot (funkcija) je povezan sa `.connect`. Ekrani ne znaju jedni za druge; `PlayPage` ih spaja.
 
 **Koje su poznate slabosti?**
-Pogledaj `AUDIT.sr.md` (fali `requirements.txt`, zadaci sprata 18 prolaze bez koda, neslaganja desktop/web…). Spremno priznati je bolje nego da komisija sama otkrije.
+Pogledaj `AUDIT.sr.md`. Većina nalaza je popravljena; ostaje duplirana logika desktop/web, zajednički kernel između nivoa (namerno) i nepinovane verzije u Pyodide‑u. Spremno priznati je bolje nego da komisija sama otkrije.
 
 ---
 

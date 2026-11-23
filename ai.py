@@ -4,7 +4,7 @@ import os
 import re
 from pathlib import Path
 
-from PySide6.QtCore import QThread, QUrl, Qt, Signal
+from PySide6.QtCore import QThread, QTimer, QUrl, Qt, Signal
 from PySide6.QtGui import QDesktopServices
 from PySide6.QtWidgets import (
     QHBoxLayout, QLabel, QLineEdit, QPushButton,
@@ -61,13 +61,18 @@ def load_settings():
         saved = json.loads(SETTINGS_FILE.read_text(encoding="utf-8"))
         s["key"] = saved.get("key", s["key"])
         s["model"] = saved.get("model", s["model"]) or DEFAULT_MODEL
-    except Exception:
-        pass
+    except (OSError, ValueError, AttributeError):
+        pass  # nema fajla ili je ostecen: koriste se podrazumevane vrednosti
     return s
 
 
 def save_settings(s):
-    SETTINGS_FILE.write_text(json.dumps(s, indent=2), encoding="utf-8")
+    """Vraca True ako je upis uspeo."""
+    try:
+        SETTINGS_FILE.write_text(json.dumps(s, indent=2), encoding="utf-8")
+        return True
+    except OSError:
+        return False
 
 
 # ---------------- prikaz poruka ----------------
@@ -75,15 +80,15 @@ def load_history():
     try:
         data = json.loads(HISTORY_FILE.read_text(encoding="utf-8"))
         return [m for m in data if m.get("role") in ("user", "assistant") and m.get("content")]
-    except Exception:
+    except (OSError, ValueError, AttributeError):
         return []
 
 
 def save_history(history):
     try:
         HISTORY_FILE.write_text(json.dumps(history, ensure_ascii=False, indent=2), encoding="utf-8")
-    except Exception:
-        pass
+    except OSError:
+        pass  # istorija je samo pogodnost; igra radi i bez nje
 
 
 def shown_from(history):
@@ -210,6 +215,12 @@ class ChatWidget(QWidget):
         self.shown = shown_from(self.history)  # ono sto vidi ucenik
         self.worker = None
         self.reply = ""
+        # tokom strimovanja ne iscrtavamo ceo razgovor na svaki delic odgovora (sporo),
+        # nego najvise jednom na 80 ms
+        self.render_timer = QTimer(self)
+        self.render_timer.setSingleShot(True)
+        self.render_timer.setInterval(80)
+        self.render_timer.timeout.connect(self.render)
 
         lay = QVBoxLayout(self)
         lay.setContentsMargins(10, 10, 10, 10)
@@ -280,7 +291,8 @@ class ChatWidget(QWidget):
     def _on_chunk(self, text):
         self.reply += text
         self.shown[-1] = ("bot", self.reply)
-        self.render()
+        if not self.render_timer.isActive():
+            self.render_timer.start()
 
     def _on_fail(self, msg):
         self.reply = ""
@@ -289,6 +301,8 @@ class ChatWidget(QWidget):
         self.render()
 
     def _on_done(self):
+        self.render_timer.stop()
+        self.render()  # poslednje stanje odgovora
         if self.reply:
             self.history.append({"role": "assistant", "content": self.reply})
             save_history(self.history)
@@ -381,9 +395,12 @@ class AccountPage(QWidget):
         self.status.setText("")
 
     def _save(self):
-        save_settings({"key": self.key.text().strip(),
-                       "model": self.model.text().strip() or DEFAULT_MODEL})
-        self.saved.emit()
+        ok = save_settings({"key": self.key.text().strip(),
+                            "model": self.model.text().strip() or DEFAULT_MODEL})
+        if ok:
+            self.saved.emit()
+        else:
+            self.status.setText("Podesavanja nije moguce sacuvati (nema prava pisanja).")
 
 
 class ChatPage(QStackedWidget):

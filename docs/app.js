@@ -493,7 +493,9 @@ const chat = (() => {
     const target = bubble("bot", "...");
     let acc = "";
     try {
-      const contents = history.slice(-30).map((m) => ({ role: m.role === "me" ? "user" : "model", parts: [{ text: m.content }] }));
+      const recent = history.slice(-30);
+      while (recent.length && recent[0].role !== "me") recent.shift();   // razgovor mora da pocne porukom korisnika (kao u ai.py)
+      const contents = recent.map((m) => ({ role: m.role === "me" ? "user" : "model", parts: [{ text: m.content }] }));
       const res = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(s.model)}:streamGenerateContent?alt=sse`,
         { method: "POST", headers: { "Content-Type": "application/json", "x-goog-api-key": s.key },

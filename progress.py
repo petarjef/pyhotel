@@ -17,7 +17,10 @@ _solved = _load()
 
 def mark(floor, level):
     _solved.add(f"{floor}-{level}")
-    FILE.write_text(json.dumps({"solved": sorted(_solved)}), encoding="utf-8")
+    try:
+        FILE.write_text(json.dumps({"solved": sorted(_solved)}), encoding="utf-8")
+    except OSError:
+        pass  # nema prava pisanja: progres ostaje u memoriji do zatvaranja igre
 
 
 def is_solved(floor, level):

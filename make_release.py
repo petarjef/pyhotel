@@ -1,22 +1,24 @@
+"""Priprema fasciklu release/app za Inno Setup (installer.iss).
+
+Pokretanje iz korena repoa:  python make_release.py
+Kopira samo ono sto igra treba za rad (kod, assets/, requirements.txt).
+Knjiga se ne pakuje (cita se online), web verzija (docs/) i dokumentacija takodje ne.
+"""
 import shutil
 from pathlib import Path
 
 ROOT = Path(__file__).parent
 OUT = ROOT / "release" / "app"
 
-EXCLUDE_DIRS = {".venv", "__pycache__", ".git", ".vscode", "lessons",
-                "release", "installer_output"}
+EXCLUDE_DIRS = {".venv", "__pycache__", ".git", ".vscode", ".github",
+                "release", "installer_output", "docs", "documentation"}
 EXCLUDE_FILES = {"settings.json", "progress.json", "chat_history.json",
-                 "api_key.txt", "make_zip.py", "make_release.py",
-                 "convert_lessons.py", "start.bat"}
+                 "make_release.py", "build_web_data.py", "verify_tasks.py",
+                 "README.md", ".gitignore"}
 EXCLUDE_SUFFIX = {".pyc", ".iss", ".zip"}
 
-# knjiga i prezentacije se namerno pakuju u instaler (uz dozvolu profesora);
-# lessons/ (izvorni .ipynb) se ne pakuje
-for needed in ("book", "lessons_html"):
-    d = ROOT / needed
-    if not d.is_dir() or not any(d.iterdir()):
-        print(f"UPOZORENJE: {needed}/ je prazan ili ne postoji - instaler ce biti bez toga!")
+if not (ROOT / "requirements.txt").is_file():
+    raise SystemExit("GRESKA: requirements.txt ne postoji - instaler bi pao pri pip install.")
 
 if OUT.exists():
     shutil.rmtree(OUT)

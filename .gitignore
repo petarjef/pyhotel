@@ -5,7 +5,6 @@ __pycache__/
 settings.json
 progress.json
 chat_history.json
-api_key.txt
 release/
 installer_output/
 *.zip

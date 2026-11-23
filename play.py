@@ -1,3 +1,5 @@
+import re
+
 from PySide6.QtCore import QTimer, Qt, Signal
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import (
@@ -141,9 +143,9 @@ class QuizPage(QWidget):
         self.title.setObjectName("qt")
         lay.addWidget(self.title)
 
-        q = QLabel("Sta ispisuje ovaj kod?")
-        q.setObjectName("qq")
-        lay.addWidget(q)
+        self.question = QLabel("Sta ispisuje ovaj kod?")
+        self.question.setObjectName("qq")
+        lay.addWidget(self.question)
 
         self.code = QPlainTextEdit()
         self.code.setObjectName("qcode")
@@ -178,6 +180,11 @@ class QuizPage(QWidget):
     def load(self, title, code, options, answer):
         self.title.setText(title)
         self.code.setPlainText(code)
+        # konceptualna pitanja imaju pitanje u komentaru; tada naslov "Sta ispisuje..." ne vazi
+        lines = [l.strip() for l in code.splitlines() if l.strip()]
+        asks = any(l.startswith("#") and ("?" in l or l.endswith(":")) for l in lines) or all(
+            l.startswith(("#", "import ", "from ")) for l in lines)
+        self.question.setVisible(not asks)
         self.answer = answer
         self.done = False
         self.msg.setText("")
@@ -205,6 +212,24 @@ class QuizPage(QWidget):
 
 def _norm(s):
     return "\n".join(line.rstrip() for line in s.strip().splitlines())
+
+
+_NUM = re.compile(r"(?<![\w.])-?\d+(?:\.\d+)?(?![\w.])")
+
+
+def _canon_nums(s):
+    """20 i 20.0 su isti broj (isto kao LENIENT_NUMBERS u docs/app.js)."""
+    def fix(m):
+        v = float(m.group(0))
+        if v.is_integer():
+            return str(int(v)) if abs(v) < 2 ** 53 else m.group(0)
+        return repr(v)
+    return _NUM.sub(fix, s)
+
+
+def same_output(got, expected):
+    a, b = _norm(got), _norm(expected)
+    return a == b or _canon_nums(a) == _canon_nums(b)
 
 
 class TaskLab(CodeLab):
@@ -257,7 +282,7 @@ class TaskLab(CodeLab):
             self.b_check.setEnabled(not on)
         if not on and getattr(self, "checking", False):
             self.checking = False
-            if _norm(self.captured) == _norm(self.expected):
+            if same_output(self.captured, self.expected):
                 self.out.appendPlainText("\n>>> TACNO!")
                 self.b_next.show()
                 self.solved.emit()

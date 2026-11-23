@@ -90,16 +90,33 @@ Skripta upozorava ako nema fascikli `book` i `lessons_html`, a README kaže da k
 
 **N18. Dupliran kod** između `hotel.py` i `app.js` (crtanje, provera). Svaka izmena pravila mora da se unese na dva mesta.
 
-## 4. Preporučeni redosled popravki (čeka tvoje odobrenje)
+## 4. Status popravki
 
-| Prioritet | Stavka | Veličina |
+Svi nalazi su obrađeni. Posle popravki ponovo su pokrenuti: `verify_tasks.py` (156 zadataka, 121 kviz sa ispisom, `data.js` – sve u redu), desktop test (offscreen) i web test (Chromium).
+
+| Nalaz | Status | Šta je urađeno |
 |---|---|---|
-| 1 | N1 – dodati `requirements.txt` | mala |
-| 2 | N3 – popraviti web istoriju četa | mala |
-| 3 | N2 – popraviti zadatke sprata 18 | mala/srednja |
-| 4 | N5 – ujednačiti poređenje ispisa | mala |
-| 5 | N7, N9, N10, N11, N15 – čišćenje | mala |
-| 6 | N4 – slike grafikona na desktopu | srednja |
-| 7 | N6 – fiksirati verzije + test na Pyodide‑u | srednja |
+| N1 | ✅ popravljeno | Dodat `requirements.txt` sa fiksiranim, testiranim verzijama; `make_release.py` odbija rad bez njega |
+| N2 | ✅ popravljeno | Zadaci sprata 18 sada traže ispis stanja grafika (broj linija, naslov, oznake, legenda); starter više ne prolazi sam; `verify_tasks.py` to proverava |
+| N3 | ✅ popravljeno | `app.js` izbacuje vodeće poruke modela iz istorije; testirano lažnim odgovorom (poslato 29 poruka, prva je korisnikova) |
+| N4 | ✅ popravljeno | Desktop prikazuje `image/png` grafike ispod izlaza (testirano) |
+| N5 | ✅ popravljeno | Desktop dobio isto blago poređenje brojeva kao web (`same_output`), prema nameri iz komita „fix output check“ |
+| N6 | ⚠ delimično | Verzije fiksirane u `requirements.txt`. Provera sprata 20–26 u Pyodide‑u i dalje nije moguća bez pristupa CDN‑u; testiraj ručno u browseru |
+| N7 | ✅ popravljeno | Naslov „Sta ispisuje ovaj kod?“ sakriven kad je pitanje u komentaru (35 pitanja bez `print`, naslov se krije za 34; samo pitanje sa `t[0]=5` ga zadržava) |
+| N8 | ➖ bez izmene | Namerno ponašanje (README); ostaje dokumentovano |
+| N9 | ✅ popravljeno | `make_release.py` očišćen: nema nepostojećih fajlova, ne kopira `docs/`, `documentation/`, alate |
+| N10 | ✅ popravljeno | Uklonjeni `DONE_FLOORS`, `PROGRESS`, `blink`, `extra`, dupli import, `api_key.txt`. Grana `locked` ostaje jer zavisi od `UNLOCK_ALL` |
+| N11 | ✅ popravljeno | `if __name__ == "__main__":` u `main.py` |
+| N12 | ✅ popravljeno | `progress.mark` i `ai.save_settings` hvataju greške upisa; ACCOUNT prikazuje poruku |
+| N13 | ✅ popravljeno | `except Exception` zamenjen užim izuzecima u `ai.py`; `lab._poll` ima jedan jasan blok koji javlja tip greške |
+| N14 | ✅ popravljeno | Iscrtavanje četa ograničeno na jednom u 80 ms (200 delića → 1 iscrtavanje) |
+| N15 | ⚠ delimično | Ispravljeno „terarni“ → „ternarni“. Mešanje srpskog i engleskog ostaje (odluka autora) |
+| N16 | ➖ bez izmene | Informativno |
+| N17 | ➖ nije greška | Jupyter šalje izlaz i `idle` kroz isti iopub kanal, redosled je zagarantovan; trka nije moguća na tom putu |
+| N18 | ⚠ delimično | Duplirana logika desktop/web je neizbežna; dodat `verify_tasks.py` koji čuva podatke usklađenim |
 
-Ništa od ovoga nije urađeno. Reci koje stavke da popravim.
+### Kako ponovo proveriti
+```bash
+pip install -r requirements.txt
+python verify_tasks.py
+```

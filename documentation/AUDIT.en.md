@@ -90,16 +90,33 @@ The script warns when the folders `book` and `lessons_html` are missing, while t
 
 **F18. Duplicated logic** between `hotel.py` and `app.js` (drawing, checking). Any rule change must be made in two places.
 
-## 4. Suggested order of fixes (awaiting your approval)
+## 4. Fix status
 
-| Priority | Item | Size |
+All findings were addressed. After the fixes, the following were re-run: `verify_tasks.py` (156 tasks, 121 quizzes with output, `data.js` – all fine), the desktop test (offscreen) and the web test (Chromium).
+
+| Finding | Status | What was done |
 |---|---|---|
-| 1 | F1 – add `requirements.txt` | small |
-| 2 | F3 – fix web chat history | small |
-| 3 | F2 – fix floor 18 tasks | small/medium |
-| 4 | F5 – make output comparison consistent | small |
-| 5 | F7, F9, F10, F11, F15 – cleanup | small |
-| 6 | F4 – plot images on desktop | medium |
-| 7 | F6 – pin versions + test on Pyodide | medium |
+| F1 | ✅ fixed | Added `requirements.txt` with pinned, tested versions; `make_release.py` refuses to run without it |
+| F2 | ✅ fixed | Floor 18 tasks now require printing the plot state (line count, title, labels, legend); the starter no longer passes by itself; `verify_tasks.py` checks it |
+| F3 | ✅ fixed | `app.js` drops leading model messages from the history; tested with a fake reply (29 messages sent, the first is the user's) |
+| F4 | ✅ fixed | Desktop shows `image/png` plots below the output (tested) |
+| F5 | ✅ fixed | Desktop got the same lenient number comparison as the web (`same_output`), following the intent of the "fix output check" commit |
+| F6 | ⚠ partial | Versions pinned in `requirements.txt`. Checking floors 20–26 inside Pyodide is still impossible without CDN access; test manually in a browser |
+| F7 | ✅ fixed | Title "Sta ispisuje ovaj kod?" hidden when the question is in a comment (35 questions have no `print`, the title is hidden for 34; the one with `t[0]=5` keeps it) |
+| F8 | ➖ no change | Intentional behaviour (README); stays documented |
+| F9 | ✅ fixed | `make_release.py` cleaned: no nonexistent files, does not copy `docs/`, `documentation/`, tools |
+| F10 | ✅ fixed | Removed `DONE_FLOORS`, `PROGRESS`, `blink`, `extra`, the duplicate import, `api_key.txt`. The `locked` branch stays because it depends on `UNLOCK_ALL` |
+| F11 | ✅ fixed | `if __name__ == "__main__":` in `main.py` |
+| F12 | ✅ fixed | `progress.mark` and `ai.save_settings` catch write errors; ACCOUNT shows a message |
+| F13 | ✅ fixed | `except Exception` replaced with narrower exceptions in `ai.py`; `lab._poll` has one clear block that reports the error type |
+| F14 | ✅ fixed | Chat rendering limited to once per 80 ms (200 chunks → 1 render) |
+| F15 | ⚠ partial | Fixed "terarni" → "ternarni". The Serbian/English mix stays (authors' decision) |
+| F16 | ➖ no change | Informational |
+| F17 | ➖ not a bug | Jupyter sends output and `idle` over the same iopub channel, so the order is guaranteed; the race cannot happen on that path |
+| F18 | ⚠ partial | Duplicated desktop/web logic is unavoidable; added `verify_tasks.py` to keep the data consistent |
 
-None of this has been done. Tell me which items to fix.
+### How to re-check
+```bash
+pip install -r requirements.txt
+python verify_tasks.py
+```

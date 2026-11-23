@@ -60,6 +60,8 @@ pyhotel/
 ├── lectures.py         ← lesson list (SECTIONS) + book reader
 ├── build_web_data.py   ← generates docs/data.js from tasks.py + lectures.py
 ├── make_release.py     ← prepares release/app for the installer
+├── requirements.txt    ← libraries (pinned versions)
+├── verify_tasks.py     ← automatic check of all tasks, quizzes and data.js
 ├── installer.iss       ← Inno Setup script (Windows installer)
 ├── assets/             ← font, icon, Python logo
 ├── docs/               ← WEB version (GitHub Pages)
@@ -130,7 +132,7 @@ CODE[floor] = [ (task_text, expected_output, starter_code, sample_solution), ...
 
 `get_task(floor, level)` turns (floor, level) into a dict:
 - odd level → `QUIZ[floor][(level-1)//2]` → `{"type":"quiz","code","options","answer"}`
-- even level → `CODE[floor][level//2 - 1]` → `{"type":"code","text","expected","starter","solution"}`
+- even level → `CODE[floor][level//2 - 1]` → `{"type":"code","text","expected","starter"}` (**the solution is deliberately not returned**; it stays in `tasks.py` for verification only)
 - returns `None` if the floor has no tasks or the level is not 1–12.
 
 Example: level 7 → `(7-1)//2 = 3` → the 4th quiz question; level 8 → `8//2-1 = 3` → the 4th coding task.
@@ -151,7 +153,7 @@ Example: level 7 → `(7-1)//2 = 3` → the 4th quiz question; level 8 → `8//2
 - `STYLE` is a **Qt stylesheet** (CSS-like) for the tab buttons.
 - `MainWindow` has a header of 3 buttons (`QPushButton`, `checkable`) in a `QButtonGroup` (exclusive) and a `QStackedWidget` below. A click calls `stack.setCurrentIndex(i)`. The initial tab is **PLAY**.
 - On Windows it calls `SetCurrentProcessExplicitAppUserModelID` so the taskbar shows our icon instead of Python's (in `try/except` since it does not exist elsewhere).
-- Note: `main()` is called at the bottom without an `if __name__ == "__main__"` guard.
+- `main()` runs only when the file is executed directly (`if __name__ == "__main__":`), so `main.py` can be imported safely (e.g. in a test).
 
 ### 6.2 `hotel.py` – how the hotel looks
 
@@ -191,7 +193,7 @@ Classes:
 1. Click **CHECK** → `check()`: `captured = ""`, `checking = True`, calls `run()`.
 2. While the kernel streams output, the overridden `_write()` appends the text both to `captured` and to the screen.
 3. When the kernel reports it is done (`_set_running(False)`), `_norm(captured)` is compared with `_norm(expected)`.
-4. `_norm` strips trailing spaces from each line and blank lines at the start/end.
+4. `same_output` first compares the `_norm` versions (strips trailing spaces from lines and blank lines at the start/end) and then versions where numbers are reduced to a canonical form (`_canon_nums`): `20` and `20.0` count as equal. The web uses the same rule (`LENIENT_NUMBERS`).
 5. Match → ">>> TACNO!", show NEXT, emit `solved`. Otherwise → ">>> JOS NE. Trazeni output: …".
 
 `PlayPage._solved` → `progress.mark(floor, level)`. `_next()` opens the next level, or returns to the level list after level 12.
@@ -218,8 +220,9 @@ Classes:
    - `execute_result` / `display_data` → text form of the result (like Jupyter, the last expression is printed);
    - `error` → traceback (ANSI colours removed with the `ANSI` regex);
    - `status: idle` → execution finished, `_set_running(False)`.
-5. `input()` → the kernel sends `input_request`; a `QLineEdit` appears and Enter sends `kc.input(text)`.
-6. **STOP** → `km.interrupt_kernel()` (like Ctrl+C). **RESET** → `km.restart_kernel()` (all variables are wiped). On app exit (`aboutToQuit`) `shutdown()` is called.
+5. **Plots**: when the kernel sends `display_data` with `image/png` (e.g. `plt.show()`), `_show_image` decodes the PNG (base64), builds a `QPixmap` and shows it in a `QScrollArea` below the output; images are cleared on the next run / RESET.
+6. `input()` → the kernel sends `input_request`; a `QLineEdit` appears and Enter sends `kc.input(text)`.
+7. **STOP** → `km.interrupt_kernel()` (like Ctrl+C). **RESET** → `km.restart_kernel()` (all variables are wiped). On app exit (`aboutToQuit`) `shutdown()` is called.
 
 **Why a kernel and not `exec()`/`subprocess`?** Variables persist between runs (the README promises that), and user code cannot crash the game itself because it runs in another process.
 
@@ -235,11 +238,11 @@ Classes:
 - **`Worker(QThread)`**: the network call runs in its own thread so the window does not freeze. It emits `chunk(str)` for each piece of the answer (*streaming*) and `failed(str)` on error. Errors are translated: 400/401/403 invalid key, 404 model not found, 429 limit reached.
 - **`ChatWidget`**:
   - `history` (sent to the model: last 20 messages, with leading "assistant" messages dropped) and `shown` (what the user sees).
-  - `send()` appends the message and starts the `Worker`; `_on_chunk` appends text and re-renders; `_on_fail` shows the error and removes the question from history; `_on_done` saves the answer to `chat_history.json`.
+  - `send()` appends the message and starts the `Worker`; `_on_chunk` appends text, and rendering is limited to at most once per 80 ms (`render_timer`) so long conversations stay fast; `_on_fail` shows the error and removes the question from history; `_on_done` saves the answer to `chat_history.json`.
   - `render()` builds HTML for the `QTextBrowser`.
 - **`fmt(text)`**: converts Markdown-like text to HTML that Qt understands. A code block is opened/closed only by a line that **starts** with ```; an unclosed block (stream in progress) is shown as code to the end. Plain text: `html.escape`, `**bold**`, `` `code` ``. `html.escape` prevents HTML injection from answers.
 - **`AccountPage`**: key (masked) and model input; GET KEY opens Google AI Studio.
-- The key is stored in plain text in `settings.json` (local, not in the repo).
+- The key is stored in plain text in `settings.json` (local, not in the repo). `save_settings` returns `False` if writing fails, and ACCOUNT shows a message.
 
 ### 6.7 `lectures.py`
 - `SECTIONS`: list of (group name, [(file, title), …]); it is also the source of the floors.
@@ -295,8 +298,8 @@ Worker ↔ page messages (`postMessage`): `status`, `ready`, `out`, `figs`, `don
 | Python | Jupyter kernel (process) | Pyodide (WASM) in a Worker |
 | Libraries | installed in venv | loaded on demand from a CDN |
 | STOP | interrupt, variables stay | worker restart, variables are wiped |
-| Plots | not displayed (only the text of the figure) | displayed as images |
-| Output comparison | strict | lenient (`20` = `20.0`) |
+| Plots | shown as images below the output | shown as images below the output |
+| Output comparison | `20` = `20.0` (`same_output`) | `20` = `20.0` (`LENIENT_NUMBERS`) |
 | Progress | `progress.json` | `localStorage` |
 | AI key | `settings.json` | `localStorage` |
 | Data | `tasks.py` directly | `data.js` (generated) |
@@ -308,16 +311,17 @@ Worker ↔ page messages (`postMessage`): `status`, `ready`, `out`, `figs`, `don
 1. **Changing tasks** → `python build_web_data.py` → commit `docs/data.js`.
 2. **Web**: GitHub Pages serves the `docs/` folder (`.nojekyll` disables Jekyll processing).
 3. **Windows installer**:
-   - `python make_release.py` copies the project to `release/app` (excluding `.venv`, `.git`, personal JSON files…).
+   - `python make_release.py` copies only what the game needs to `release/app` (code, `assets/`, `requirements.txt`); it excludes `docs/`, `documentation/`, personal JSON files and tools. It refuses to run if `requirements.txt` is missing.
    - Inno Setup compiles `installer.iss`: installs to `%LOCALAPPDATA%\PythonHotel` (no admin rights), looks for Python 3.12–3.14 in the registry and, if missing, **downloads Python 3.12.10**; creates `.venv`, runs `pip install -r requirements.txt`; creates shortcuts launching `pythonw.exe main.py`.
-   - ⚠ `requirements.txt` currently does not exist in the repo (see audit).
+
+### Verifying tasks
+`python verify_tasks.py` runs every solution, checks that the starter code does not pass by itself, that quiz answers match the real output and that `docs/data.js` is up to date. Run it after every change to `tasks.py`.
 
 ### Running from source (development)
 ```bash
 python -m venv .venv
 .venv\Scripts\activate            # Linux/Mac: source .venv/bin/activate
-pip install PySide6 jupyter_client ipykernel google-genai \
-            numpy pandas scipy scikit-learn matplotlib
+pip install -r requirements.txt
 python main.py
 ```
 Web locally: `cd docs && python -m http.server 8000`, then open `http://localhost:8000`.
@@ -367,7 +371,7 @@ No images: everything is rectangles (`fillRect`) in a loop; the floor is drawn f
 Qt's notification mechanism: an object emits a signal (`Signal`) and another object's slot (function) is attached with `.connect`. Screens do not know about each other; `PlayPage` wires them together.
 
 **What are the known weaknesses?**
-See `AUDIT.en.md` (missing `requirements.txt`, floor 18 tasks pass with no code, desktop/web differences…). Admitting them yourself is better than the committee finding them.
+See `AUDIT.en.md`. Most findings are fixed; what remains is the duplicated desktop/web logic, the shared kernel between levels (intentional) and unpinned versions inside Pyodide. Admitting them yourself is better than the committee finding them.
 
 ---
 
