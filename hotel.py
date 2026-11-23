@@ -1,3 +1,10 @@
+"""Crtanje hotela (piksel-art) i klikovi na spratove.
+
+Nema slika: zgrada, prozori, table i oblaci crtaju se pravougaonicima (QPainter).
+Svaki sprat je jedna lekcija (LESSONS se gradi iz SECTIONS u lectures.py).
+Sprat se racuna odozdo: prizemlje je sprat 1, a na ekranu se crta od vrha.
+"""
+
 from pathlib import Path
 import random
 from PySide6.QtCore import QPoint, QPropertyAnimation, QRect, Qt, QTimer, Signal
@@ -44,10 +51,12 @@ CLOUDS = [(70, 1.0, 0), (230, 0.7, 380)]  # (y, velicina, pocetni pomak)
 
 
 def fr(p, x, y, w, h, color):
+    """Popunjen pravougaonik (fillRect); koordinate se zaokruzuju na cele piksele."""
     p.fillRect(int(x), int(y), int(w), int(h), QColor(color))
 
 
 def floor_done(i):
+    """True ako su svih 12 nivoa sprata resena. i je indeks sprata (0 = prvi sprat)."""
     return progress.done_count(i + 1) >= LEVELS
 
 
@@ -55,6 +64,9 @@ UNLOCK_ALL = True  # namerno: svi spratovi otkljucani; konfete tek kad se zavrse
 
 
 def floor_state(i):
+    """'done' (zeleno), 'cur' (zuto) ili 'locked' (sivo). Dok je UNLOCK_ALL = True
+    niko nije zakljucan; nivoi unutar sprata i dalje idu redom.
+    """
     if floor_done(i):
         return "done"
     if UNLOCK_ALL:
@@ -62,15 +74,22 @@ def floor_state(i):
     return "cur" if all(floor_done(k) for k in range(i)) else "locked"
 
 def all_done():
+    """True kad su resena sva 12 nivoa na svim spratovima koji imaju zadatke (tada ide konfeti)."""
     floors = [i for i in range(len(LESSONS)) if (i + 1) in tasks.QUIZ]
     return bool(floors) and all(floor_done(i) for i in floors)
 
 
 class Hotel(QWidget):
+    """Jedan veliki widget sa celom zgradom (fiksne velicine), smesten u QScrollArea.
+    Emituje floor_clicked(n) pri kliku na sprat i door_clicked pri kliku na vrata.
+    """
     floor_clicked = Signal(int)
     door_clicked = Signal()
 
     def __init__(self):
+        """Racuna y-koordinate delova zgrade (antena, bilbord, krov, spratovi, prizemlje)
+        i ukupnu visinu widgeta.
+        """
         super().__init__()
         self.n = len(LESSONS)
         self.y_ant = TOP
@@ -92,8 +111,12 @@ class Hotel(QWidget):
         self.logo = logo.scaled(36, 36, Qt.KeepAspectRatio, Qt.SmoothTransformation)
 
     def step_confetti(self, tick):
+        """Jedan korak animacije konfeta. Na svakih 85 tikova (oko 5 s), ako je sve zavrseno,
+        izlazi novi talas; cestice se krecu brzinom, a vertikalna brzina raste (gravitacija).
+        """
         if tick % 85 == 0 and all_done():  # novi talas na svakih ~5 sekundi
             cx = W // 2
+            # konfeti izlaze iz oba kraja bilborda, na levo (-1) i na desno (1)
             for sx, direction in ((cx - SIGN_W // 2, -1), (cx + SIGN_W // 2, 1)):
                 for _ in range(24):
                     self.confetti.append([
@@ -113,6 +136,7 @@ class Hotel(QWidget):
 
     # ---------- crtanje ----------
     def paintEvent(self, ev):
+        """Crta zgradu. Sprat i tabla se crtaju u dve petlje da tabla uvek bude iznad cigala."""
         p = QPainter(self)
         cx = W // 2
         top, bot = ev.rect().top(), ev.rect().bottom()
@@ -122,6 +146,7 @@ class Hotel(QWidget):
 
         for r in range(self.n):
             y = self.y_floors + r * FLOOR_H
+            # preskace se sprat koji nije u vidljivom delu (ev.rect()), zbog brzine
             if y > bot + 12 or y + FLOOR_H < top - 12:
                 continue
             self._paint_floor(p, y, self.n - 1 - r)
@@ -139,6 +164,7 @@ class Hotel(QWidget):
         p.end()
 
     def _paint_top(self, p, cx):
+        """Antena, krov i bilbord sa logom i natpisom PYTHON."""
         fr(p, cx - 3, self.y_ant, 6, ANT_H, DARK)  # antena
 
         # krov + ispust
@@ -165,6 +191,7 @@ class Hotel(QWidget):
         p.drawText(tx, ty, "PYTHON")
 
     def _paint_floor(self, p, y, i):
+        """Jedan sprat: cigle, tri prozora i tamni okvir. Zakljucan sprat je zatamnjen."""
         state = floor_state(i)
         x = BX
         fr(p, x, y, BW, FLOOR_H, BRICK)
@@ -179,6 +206,7 @@ class Hotel(QWidget):
         fr(p, x + BW - 4, y, 4, FLOOR_H, DARK)
         fr(p, x, y + FLOOR_H - 4, BW, 4, DARK)
 
+        # x-pozicije tri prozora na spratu
         for wx in (28, 106, 184):
             X, Y = x + wx, y + 23
             if state == "locked":
@@ -195,6 +223,7 @@ class Hotel(QWidget):
             fr(p, X + 20, Y, 4, 50, DARK)
 
     def _paint_plate(self, p, y, i):
+        """Tabla sa brojem i nazivom lekcije (skracen ako je predugacak) i znacka n/12."""
         state = floor_state(i)
         p.setFont(self.f8)
         fm = QFontMetrics(self.f8)
@@ -218,6 +247,7 @@ class Hotel(QWidget):
         p.drawText(QRect(bx2, by2, bw2, 18), Qt.AlignCenter, badge)
 
     def _paint_lobby(self, p, cx):
+        """Prizemlje sa natpisom CODE LAB i vratima."""
         lx, ly = cx - 152, self.y_lobby
         fr(p, lx, ly, 304, LOBBY_H, DARK)
         fr(p, lx + 4, ly + 4, 296, LOBBY_H - 8, "#7a3322")
@@ -234,21 +264,27 @@ class Hotel(QWidget):
         d = self._door_rect()
         fr(p, d.x(), d.y(), 64, 72, DARK)
         fr(p, d.x() + 4, d.y() + 4, 56, 64, "#34506f" if self.door_hover else "#243246")
+        # zuti okvir vrata: gore, dole, levo, desno
         for rx, ry, rw, rh in ((4, 4, 56, 4), (4, 64, 56, 4), (4, 4, 4, 64), (56, 4, 4, 64)):
             fr(p, d.x() + rx, d.y() + ry, rw, rh, "#ffd43b")
         fr(p, d.x() + 46, d.y() + 40, 6, 6, "#ffd43b")
 
     # ---------- mis ----------
     def _door_rect(self):
+        """Pravougaonik vrata (za crtanje i za proveru klika)."""
         return QRect(W // 2 - 32, self.y_lobby + 36, 64, 72)
 
     def _floor_at(self, pos):
+        """Pretvara poziciju misa u indeks sprata (0 = prvi sprat) ili None ako nije na spratu.
+        Red r odozgo odgovara spratu n-1-r.
+        """
         if not (BX <= pos.x() < BX + BW) or pos.y() < self.y_floors:
             return None
         r = (pos.y() - self.y_floors) // FLOOR_H
         return self.n - 1 - r if r < self.n else None
 
     def mouseMoveEvent(self, ev):
+        """Menja kursor (ruka / zabranjeno) i osvetljava vrata kad je mis iznad njih."""
         pos = ev.position().toPoint()
         over_door = self._door_rect().contains(pos)
         i = self._floor_at(pos)
@@ -263,11 +299,13 @@ class Hotel(QWidget):
             self.update(self._door_rect())
 
     def leaveEvent(self, ev):
+        """Mis je napustio widget: ugasi osvetljenje vrata."""
         if self.door_hover:
             self.door_hover = False
             self.update(self._door_rect())
 
     def mousePressEvent(self, ev):
+        """Levi klik: vrata otvaraju Code Lab, sprat otvara listu nivoa (ako nije zakljucan)."""
         if ev.button() != Qt.LeftButton:
             return
         pos = ev.position().toPoint()
@@ -280,6 +318,7 @@ class Hotel(QWidget):
 
 
 class Ground(QWidget):
+    """Traka trave ispod hotela."""
     def __init__(self):
         super().__init__()
         self.setMinimumHeight(64)
@@ -294,6 +333,7 @@ class Ground(QWidget):
 
 
 class CloudButton(QPushButton):
+    """Dugme u obliku oblaka sa strelicom (up = gore, inace dole); skroluje hotel."""
     RECTS = [(4, 20, 52, 16), (12, 10, 36, 10), (22, 2, 18, 8)]
 
     def __init__(self, up):
@@ -322,10 +362,12 @@ class CloudButton(QPushButton):
 
 
 class HotelPage(QWidget):
+    """Ekran sa hotelom: pozadina (nebo, zvezde, oblaci), hotel u skrolu i dva oblaka-dugmeta."""
     open_lab = Signal()          # vrata -> Code Lab (povezujemo kasnije)
     floor_clicked = Signal(int)  # broj sprata (1, 2, 3...)
 
     def __init__(self):
+        """Gradi skrol sa hotelom i travom, dugmad-oblake i tajmer animacije (60 ms)."""
         super().__init__()
         self.tick = 0
         self._placed = False
@@ -370,14 +412,17 @@ class HotelPage(QWidget):
 
         self.timer = QTimer(self)
         self.timer.timeout.connect(self._frame)
+        # 60 ms po frejmu (oko 16 frejmova u sekundi)
         self.timer.start(60)
 
     def _frame(self):
+        """Jedan frejm animacije: pomera konfete i oblake pa osvezi ekran."""
         self.tick += 1
         self.hotel.step_confetti(self.tick)
         self.update()
 
     def paintEvent(self, ev):
+        """Pozadina: gradijent neba, zvezde u ponovljenoj mrezi i oblaci koji plove."""
         p = QPainter(self)
         w, h = self.width(), self.height()
         g = QLinearGradient(0, 0, 0, h)
@@ -387,6 +432,7 @@ class HotelPage(QWidget):
         p.fillRect(self.rect(), g)
 
         star = QColor(255, 255, 255, 140)
+        # zvezde: isti uzorak (STARS) ponovljen u mrezi preko celog ekrana
         for ty in range(0, h + 170, 170):
             for tx in range(0, w + 240, 240):
                 for sx, sy, s in STARS:
@@ -400,6 +446,7 @@ class HotelPage(QWidget):
         p.end()
 
     def _scroll_by(self, dy):
+        """Glatko skroluje hotel za dy piksela (animacija 250 ms)."""
         bar = self.scroll.verticalScrollBar()
         self.anim = QPropertyAnimation(bar, b"value", self)
         self.anim.setDuration(250)
@@ -408,6 +455,7 @@ class HotelPage(QWidget):
         self.anim.start()
 
     def resizeEvent(self, e):
+        """Drzi dugmad-oblake uz desnu ivicu, vertikalno na sredini."""
         super().resizeEvent(e)
         self.clouds.adjustSize()
         self.clouds.move(self.width() - self.clouds.width() - 6,
@@ -415,6 +463,7 @@ class HotelPage(QWidget):
         self.clouds.raise_()
 
     def showEvent(self, e):
+        """Pri prvom prikazivanju skroluje do dna, da se vidi prizemlje."""
         super().showEvent(e)
         if not self._placed:  # na pocetku pokazi prizemlje
             self._placed = True

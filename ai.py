@@ -1,3 +1,10 @@
+"""Tab Help AI: cet sa AI tutorom Monty Python preko Google Gemini.
+
+Mrezni poziv radi u zasebnoj niti (Worker) da prozor ne bi zamrzao, a odgovor stize
+u delovima (streaming). Kljuc i model su u settings.json, istorija u chat_history.json
+(oba su lokalna i nisu u repozitorijumu).
+"""
+
 import html
 import json
 import os
@@ -56,6 +63,7 @@ PRE = ('style="background-color:#101826; color:#9be28f; font-family:Consolas;'
 
 # ---------------- podesavanja ----------------
 def load_settings():
+    """Cita kljuc i model: prvo promenljiva okruzenja GEMINI_API_KEY, pa settings.json."""
     s = {"key": os.environ.get("GEMINI_API_KEY", ""), "model": DEFAULT_MODEL}
     try:
         saved = json.loads(SETTINGS_FILE.read_text(encoding="utf-8"))
@@ -77,6 +85,7 @@ def save_settings(s):
 
 # ---------------- prikaz poruka ----------------
 def load_history():
+    """Cita sacuvan razgovor; vraca samo ispravne poruke (user/assistant sa tekstom)."""
     try:
         data = json.loads(HISTORY_FILE.read_text(encoding="utf-8"))
         return [m for m in data if m.get("role") in ("user", "assistant") and m.get("content")]
@@ -85,6 +94,7 @@ def load_history():
 
 
 def save_history(history):
+    """Cuva razgovor; ako upis ne uspe, ignorise (istorija je samo pogodnost)."""
     try:
         HISTORY_FILE.write_text(json.dumps(history, ensure_ascii=False, indent=2), encoding="utf-8")
     except OSError:
@@ -92,11 +102,13 @@ def save_history(history):
 
 
 def shown_from(history):
+    """Lista (ko, tekst) za prikaz: pozdrav pa sve poruke iz istorije."""
     return [("bot", WELCOME)] + [
         ("me" if m["role"] == "user" else "bot", m["content"]) for m in history
     ]
 
 def _plain_html(lines):
+    """Obican tekst u HTML: escape, **podebljano** i `kod` u liniji."""
     part = html.escape("\n".join(lines))
     part = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", part)
     part = re.sub(
@@ -132,6 +144,7 @@ def fmt(text):
 
 
 def bubble(role, body):
+    """Jedan balon poruke kao HTML tabela (QTextBrowser razume samo osnovni HTML)."""
     body = body or "..."
     if role == "me":
         return (
@@ -148,20 +161,26 @@ def bubble(role, body):
 
 # ---------------- Gemini ----------------
 class Worker(QThread):
+    """Nit koja poziva Gemini. Signali: chunk (deo odgovora) i failed (poruka o gresci)."""
     chunk = Signal(str)
     failed = Signal(str)
 
     def __init__(self, key, model, messages):
+        """Pamti kljuc, model i poruke koje se salju."""
         super().__init__()
         self.key = key
         self.model = model
         self.messages = messages
 
     def run(self):
+        """Salje razgovor modelu i emituje odgovor deo po deo. Greske prevodi u poruke
+        razumljive ucenicima (neispravan kljuc, nepostojeci model, ogranicenje).
+        """
         if not self.key:
             self.failed.emit("Nema API kljuca. Pritisni ACCOUNT i nalepi kljuc.")
             return
         try:
+            # biblioteka se uvozi tek ovde, da igra radi i kad google-genai nije instaliran
             from google import genai
             from google.genai import types
         except ImportError:
@@ -171,6 +190,7 @@ class Worker(QThread):
             client = genai.Client(api_key=self.key)
             contents = [
                 types.Content(
+                    # Gemini zove odgovore asistenta ulogom 'model'
                     role="model" if m["role"] == "assistant" else "user",
                     parts=[types.Part(text=m["content"])],
                 )
@@ -198,6 +218,7 @@ class Worker(QThread):
 
 # ---------------- ekrani ----------------
 def make_button(text):
+    """Zuto dugme istog izgleda kao ostala."""
     b = QPushButton(text)
     b.setObjectName("cbtn")
     b.setCursor(Qt.PointingHandCursor)
@@ -205,9 +226,11 @@ def make_button(text):
 
 
 class ChatWidget(QWidget):
+    """Ekran sa cetom. history je ono sto se salje modelu, shown ono sto ucenik vidi."""
     open_account = Signal()
 
     def __init__(self):
+        """Ucitava istoriju i gradi izgled; render_timer ogranicava iscrtavanje tokom strimovanja."""
         super().__init__()
         self.setObjectName("chat")
         self.setAttribute(Qt.WA_StyledBackground, True)
@@ -258,25 +281,32 @@ class ChatWidget(QWidget):
         self.render()
 
     def refresh_who(self):
+        """Prikazuje ime modela ili poruku da nije povezano."""
         s = load_settings()
         self.who.setText(f"Gemini - {s['model']}" if s["key"] else "Nije povezano (ACCOUNT)")
 
     def render(self):
+        """Iscrtava ceo razgovor i skroluje do dna."""
         page = "".join(bubble(role, fmt(text) if text else "") for role, text in self.shown)
         self.view.setHtml(page)
         bar = self.view.verticalScrollBar()
         bar.setValue(bar.maximum())
 
     def send(self):
+        """Dodaje pitanje, pokrece Worker. Modelu se salje poslednjih 20 poruka, a razgovor
+        mora da pocne porukom korisnika.
+        """
         text = self.input.text().strip()
         if not text or (self.worker and self.worker.isRunning()):
             return
         self.input.clear()
         self.history.append({"role": "user", "content": text})
+        # prazan 'bot' balon se puni dok stizu delovi odgovora
         self.shown += [("me", text), ("bot", "")]
         self.render()
 
         msgs = self.history[-20:]
+        # Gemini trazi da razgovor pocne porukom korisnika
         while msgs and msgs[0]["role"] != "user":
             msgs.pop(0)
         self.reply = ""
@@ -289,18 +319,21 @@ class ChatWidget(QWidget):
         self.worker.start()
 
     def _on_chunk(self, text):
+        """Stigao je deo odgovora: nadovezuje se, a iscrtavanje je najvise jednom u 80 ms."""
         self.reply += text
         self.shown[-1] = ("bot", self.reply)
         if not self.render_timer.isActive():
             self.render_timer.start()
 
     def _on_fail(self, msg):
+        """Greska: prikazi poruku i izbaci pitanje iz istorije (nije dobilo odgovor)."""
         self.reply = ""
         self.shown[-1] = ("bot", msg)
         self.history.pop()  # izbaci pitanje na koje nije stigao odgovor
         self.render()
 
     def _on_done(self):
+        """Nit je zavrsila: konacno iscrtavanje, cuvanje odgovora i ponovo omoguci SEND."""
         self.render_timer.stop()
         self.render()  # poslednje stanje odgovora
         if self.reply:
@@ -310,6 +343,7 @@ class ChatWidget(QWidget):
         self.input.setFocus()
 
     def reset(self):
+        """NEW: brise razgovor (ne dok traje odgovor)."""
         if self.worker and self.worker.isRunning():
             return
         self.history = []
@@ -322,14 +356,17 @@ KEY_URL = "https://aistudio.google.com/apikey"
 
 
 def spaced(text):
+    """Tekst sa razmakom izmedju redova."""
     return f'<div style="line-height: 170%;">{text}</div>'
 
 
 class AccountPage(QWidget):
+    """Ekran za unos API kljuca i naziva modela; GET KEY otvara Google AI Studio."""
     saved = Signal()
     cancelled = Signal()
 
     def __init__(self):
+        """Gradi polja (kljuc je maskiran) i dugmad."""
         super().__init__()
         self.setObjectName("chat")
         self.setAttribute(Qt.WA_StyledBackground, True)
@@ -389,12 +426,14 @@ class AccountPage(QWidget):
         lay.addStretch(1)
 
     def reload(self):
+        """Puni polja trenutno sacuvanim vrednostima."""
         s = load_settings()
         self.key.setText(s["key"])
         self.model.setText(s["model"])
         self.status.setText("")
 
     def _save(self):
+        """Cuva podesavanja; ako upis ne uspe, javlja gresku umesto da se vrati na cet."""
         ok = save_settings({"key": self.key.text().strip(),
                             "model": self.model.text().strip() or DEFAULT_MODEL})
         if ok:
@@ -404,7 +443,9 @@ class AccountPage(QWidget):
 
 
 class ChatPage(QStackedWidget):
+    """Stack: 0 cet, 1 ACCOUNT."""
     def __init__(self):
+        """Pravi oba ekrana i povezuje njihove signale."""
         super().__init__()
         self.setStyleSheet(STYLE)
         self.chat = ChatWidget()
@@ -416,9 +457,11 @@ class ChatPage(QStackedWidget):
         self.account.cancelled.connect(self._back)
 
     def _open_account(self):
+        """Otvara ACCOUNT sa svezim vrednostima."""
         self.account.reload()
         self.setCurrentIndex(1)
 
     def _back(self):
+        """Povratak na cet; osvezava prikaz modela."""
         self.chat.refresh_who()
         self.setCurrentIndex(0)

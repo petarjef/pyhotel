@@ -22,6 +22,7 @@ ROOT = Path(__file__).parent
 
 
 def run(code):
+    """Izvrsava kod u novom Python procesu (-I = izolovano) u privremenoj fascikli; vraca (stdout, stderr)."""
     with tempfile.TemporaryDirectory() as d:  # zadaci pisu fajlove, pa u privremenu fasciklu
         r = subprocess.run([sys.executable, "-I", "-c", code], capture_output=True, text=True,
                            cwd=d, timeout=120, env={**os.environ, "MPLBACKEND": "Agg"})
@@ -29,10 +30,12 @@ def run(code):
 
 
 def norm(s):
+    """Isto normalizovanje ispisa kao _norm u play.py."""
     return "\n".join(line.rstrip() for line in s.strip().splitlines())
 
 
 def main():
+    """Radi sve cetiri provere iz opisa na vrhu fajla; vraca 0 samo ako je sve u redu."""
     bad = []
     n_code = n_quiz = n_concept = 0
 

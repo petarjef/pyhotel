@@ -13,6 +13,7 @@ SKIP = {"ML_25_01_Uvod_1.html"}  # isto kao u hotel.py
 
 
 def load_tasks():
+    """Uvozi tasks.py kao modul (bez PySide6; tasks.py sadrzi samo podatke)."""
     spec = importlib.util.spec_from_file_location("tasks", BASE / "tasks.py")
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
@@ -20,6 +21,9 @@ def load_tasks():
 
 
 def load_sections():
+    """Cita SECTIONS iz lectures.py kao tekst (ast.literal_eval), jer bi uvoz lectures.py
+    zahtevao PySide6.
+    """
     tree = ast.parse((BASE / "lectures.py").read_text(encoding="utf-8"))
     for node in tree.body:
         if isinstance(node, ast.Assign) and getattr(node.targets[0], "id", "") == "SECTIONS":
@@ -45,6 +49,7 @@ def build_js(t, sections):
 
 
 def main():
+    """Pise docs/data.js i ispisuje koliko je spratova, kvizova i zadataka."""
     t = load_tasks()
     sections = load_sections()
     out = build_js(t, sections)

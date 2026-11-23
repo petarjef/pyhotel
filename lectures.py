@@ -1,3 +1,10 @@
+"""Tab Lectures: korice knjige, spisak lekcija i citac.
+
+SECTIONS je spisak lekcija (grupa, [(fajl, naslov), ...]); iz njega se prave i spratovi
+hotela (hotel.py) i web verzija (build_web_data.py). Knjiga se cita ONLINE
+(BOOK_BASE), nije u repozitorijumu.
+"""
+
 from pathlib import Path
 
 from PySide6.QtCore import Qt, QUrl
@@ -13,6 +20,7 @@ BOOK_BASE = "https://dazdejkovic.github.io/OI_25_jb1/"  # knjiga se cita online
 
 
 def book_url(file):
+    """Pun URL poglavlja knjige za dati HTML fajl."""
     return QUrl(BOOK_BASE + file)
 
 SECTIONS = [
@@ -82,6 +90,7 @@ QLabel#rtitle { color: #ffffff; font-size: 9px; padding-left: 8px; }
 
 
 class PyLogo(QLabel):
+    """Python logo kao QLabel; ne hvata klikove (propusta ih dugmetu ispod)."""
     def __init__(self, size=36):
         super().__init__()
         pix = QPixmap(str(BASE / "assets" / "python_logo.png"))
@@ -90,6 +99,7 @@ class PyLogo(QLabel):
 
 
 class BookCover(QPushButton):
+    """Korice knjige: dugme sa logom, naslovom i autorima."""
     def __init__(self):
         super().__init__()
         self.setObjectName("cover")
@@ -122,7 +132,9 @@ class BookCover(QPushButton):
 
 
 class LecturesPage(QStackedWidget):
+    """Stack ekrana: 0 korice, 1 spisak poglavlja, 2 citac (pravi se tek pri prvom otvaranju)."""
     def __init__(self):
+        """Pravi korice i spisak; citac se pravi lenjo, u open_page."""
         super().__init__()
         self.setStyleSheet(STYLE)
         self.reader = None
@@ -131,6 +143,7 @@ class LecturesPage(QStackedWidget):
         self.addWidget(self._build_list())
 
     def _build_cover(self):
+        """Ekran sa koricama; klik otvara spisak poglavlja."""
         page = QWidget()
         lay = QVBoxLayout(page)
         lay.setContentsMargins(14, 20, 14, 20)
@@ -150,6 +163,7 @@ class LecturesPage(QStackedWidget):
         return page
 
     def _build_list(self):
+        """Skrol sa dugmetom za svako poglavlje, grupisano po SECTIONS."""
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         holder = QWidget()
@@ -173,6 +187,7 @@ class LecturesPage(QStackedWidget):
                 b.setObjectName("book" if n == 0 else "lec")
                 b.setCursor(Qt.PointingHandCursor)
                 b.clicked.connect(
+                    # f, t i btn se vezuju za trenutno poglavlje; inace bi sva dugmad otvarala poslednje
                     lambda _=False, f=file, t=title, btn=b: self.open_page(
                         book_url(f), t, btn, back=1
                     )
@@ -184,6 +199,9 @@ class LecturesPage(QStackedWidget):
         return scroll
 
     def open_page(self, url, title, btn, back):
+        """Otvara poglavlje u ugradjenom pregledacu (QWebEngineView). back je indeks ekrana
+        na koji vraca dugme < BACK. Dugme poglavlja se oboji zeleno kao 'otvoreno'.
+        """
         if self.reader is None:  # pravi se tek pri prvom otvaranju
             self.reader = QWidget()
             v = QVBoxLayout(self.reader)

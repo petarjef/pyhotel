@@ -1,3 +1,10 @@
+"""Ulazna tacka desktop aplikacije Python Hotel.
+
+Pravi glavni prozor sa tri taba (Lectures, PLAY, Help AI). Svaki tab je zaseban
+ekran iz svog modula: lectures.py, play.py, ai.py.
+Pokretanje:  python main.py
+"""
+
 import sys
 import ctypes
 from pathlib import Path
@@ -31,7 +38,11 @@ QLabel#page { color: #ffffff; font-size: 12px; }
 
 
 class MainWindow(QWidget):
+    """Glavni prozor: zaglavlje sa tri dugmeta i QStackedWidget ispod njega.
+    Klik na dugme menja koji se ekran prikazuje.
+    """
     def __init__(self):
+        """Gradi zaglavlje (dugmad tabova) i slaze ekrane u stack. Pocetni tab je PLAY."""
         super().__init__()
         self.setObjectName("root")
         self.setAttribute(Qt.WA_StyledBackground, True)
@@ -47,8 +58,10 @@ class MainWindow(QWidget):
         header.setSpacing(0)
         self.stack = QStackedWidget()
         group = QButtonGroup(self)
+        # samo jedan tab moze da bude oznacen u isto vreme
         group.setExclusive(True)
 
+        # (naziv, relativna sirina dugmeta); PLAY je malo siri
         tabs = [("Lectures", 20), ("PLAY", 23), ("Help AI", 20)]
         for i, (title, stretch) in enumerate(tabs):
             btn = QPushButton(title)
@@ -60,6 +73,7 @@ class MainWindow(QWidget):
             btn.setCursor(Qt.PointingHandCursor)
             group.addButton(btn, i)
             header.addWidget(btn, stretch)
+            # idx=i vezuje trenutni i u lambdu; bez toga bi svi tabovi otvarali poslednji ekran
             btn.clicked.connect(lambda _=False, idx=i: self.stack.setCurrentIndex(idx))
             if title == "PLAY":
                 btn.setChecked(True)
@@ -68,6 +82,7 @@ class MainWindow(QWidget):
         self.stack.addWidget(LecturesPage())
         self.stack.addWidget(PlayPage())
         self.stack.addWidget(ChatPage())
+        # redosled u stack-u mora da se poklapa sa redosledom dugmadi iznad (0 Lectures, 1 PLAY, 2 Help AI)
         self.stack.setCurrentIndex(1)
 
         outer.addLayout(header)
@@ -75,6 +90,7 @@ class MainWindow(QWidget):
 
 
 def main():
+    """Pokrece Qt aplikaciju: ikonica, font Press Start 2P, stil i glavni prozor."""
     try:  # da traka zadataka pokaze nasu ikonicu, a ne Pythonovu
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("pythonhotel.game")
     except Exception:
@@ -82,6 +98,7 @@ def main():
     app = QApplication(sys.argv)
     app.setWindowIcon(QIcon(str(BASE / "assets" / "icon.ico")))
 
+    # font_id == -1 znaci da font nije ucitan; tada ostaje sistemski font
     font_id = QFontDatabase.addApplicationFont(str(FONT_PATH))
     if font_id == -1:
         print("UPOZORENJE: font nije nadjen na putanji:", FONT_PATH)

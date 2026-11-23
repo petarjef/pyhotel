@@ -1,3 +1,13 @@
+"""Code Lab: editor za Python kod sa pravim Jupyter kernelom.
+
+Kod igraca se izvrsava u ZASEBNOM procesu (kernel), pa ne moze da sruci igru, moze da se
+prekine (STOP) i restartuje (RESET), a promenljive ostaju izmedju pokretanja.
+Komunikacija ide porukama preko jupyter_client-a:
+  iopub - ispis kernela (print, rezultati, greske, grafici, status)
+  stdin - zahtevi za unos (input())
+CodeLab koristi i TaskLab u play.py (dodaje dugme CHECK).
+"""
+
 import base64
 import queue
 import re
@@ -35,15 +45,20 @@ QLineEdit#inp {
 
 
 class CodeEdit(QPlainTextEdit):
+    """Editor koda: Ctrl+Enter pokrece kod, Enter cuva uvlacenje (posle ':' dodaje 4 razmaka),
+    Tab ubacuje 4 razmaka.
+    """
     run_requested = Signal()
 
     def keyPressEvent(self, e):
+        """Obrada tastera; sve ostalo prepusta QPlainTextEdit-u."""
         if e.key() in (Qt.Key_Return, Qt.Key_Enter):
             if e.modifiers() & Qt.ControlModifier:
                 self.run_requested.emit()
                 return
             line = self.textCursor().block().text()
             indent = line[: len(line) - len(line.lstrip())]
+            # posle ':' (npr. if, for, def) sledeca linija se uvlaci jos 4 razmaka
             if line.rstrip().endswith(":"):
                 indent += "    "
             super().keyPressEvent(e)
@@ -56,9 +71,11 @@ class CodeEdit(QPlainTextEdit):
 
 
 class CodeLab(QWidget):
+    """Ceo ekran Code Laba: dugmad, tekst zadatka, editor, izlaz, slike grafika i polje za unos."""
     back = Signal()
 
     def __init__(self):
+        """Gradi izgled i povezuje dugmad. Kernel se NE pokrece ovde nego tek pri prvom koriscenju."""
         super().__init__()
         self.setObjectName("lab")
         self.setAttribute(Qt.WA_StyledBackground, True)
@@ -137,6 +154,7 @@ class CodeLab(QWidget):
         self._set_running(False)
 
     def _clear_images(self):
+        """Brise sve prikazane grafike (pri novom pokretanju ili RESET-u)."""
         while self.img_lay.count():
             w = self.img_lay.takeAt(0).widget()
             if w is not None:
@@ -144,6 +162,7 @@ class CodeLab(QWidget):
         self.imgs.hide()
 
     def _show_image(self, b64):
+        """Prikazuje PNG grafik (base64 iz poruke kernela) ispod izlaza."""
         pix = QPixmap()
         if not pix.loadFromData(base64.b64decode(b64), "PNG"):
             return
@@ -153,6 +172,7 @@ class CodeLab(QWidget):
         self.imgs.show()
 
     def _btn(self, text):
+        """Pravi zuto dugme istog izgleda kao ostala."""
         b = QPushButton(text)
         b.setObjectName("lbtn")
         b.setCursor(Qt.PointingHandCursor)
@@ -160,6 +180,7 @@ class CodeLab(QWidget):
 
     # ---------- javni deo ----------
     def start(self, task_text, starter=""):
+        """Postavlja tekst zadatka i pocetni kod; prvi put pokazuje 'Starting Python...'."""
         html = task_text.replace("\n", "<br>")
         self.task.setText(f'<div style="line-height: 160%;">{html}</div>')
         self.code.setPlainText(starter)
@@ -169,10 +190,14 @@ class CodeLab(QWidget):
         QTimer.singleShot(40, self._boot)
 
     def _boot(self):
+        """Pokrece kernel odmah posle prikaza ekrana, da prvo pokretanje koda ne kasni."""
         if self.ensure_kernel() and self.out.toPlainText() == "Starting Python...":
             self.out.clear()
 
     def ensure_kernel(self):
+        """Pokrece kernel ako vec ne radi. km (KernelManager) upravlja procesom, kc (KernelClient)
+        salje i prima poruke. Vraca False ako kernel ne moze da se pokrene.
+        """
         if self.kc:
             return True
         try:
@@ -187,10 +212,12 @@ class CodeLab(QWidget):
             if app is not None:
                 app.aboutToQuit.connect(self.shutdown)
                 self._quit_hooked = True
+        # tek kad kernel radi: citaj njegove poruke na svakih 40 ms
         self.timer.start(40)
         return True
 
     def shutdown(self):
+        """Zatvara kanale i gasi kernel (poziva se i pri zatvaranju aplikacije)."""
         try:
             if self.kc:
                 self.kc.stop_channels()
@@ -207,14 +234,17 @@ class CodeLab(QWidget):
 
     # ---------- dugmad ----------
     def run(self):
+        """Salje kod kernelu. execute vraca msg_id po kome kasnije prepoznajemo odgovore."""
         if self.running or not self.ensure_kernel():
             return
         self.out.clear()
         self._clear_images()
+        # msg_id vezuje odgovore kernela za OVO pokretanje
         self.msg_id = self.kc.execute(self.code.toPlainText())
         self._set_running(True)
 
     def stop(self):
+        """Prekida izvrsavanje (kao Ctrl+C); promenljive ostaju."""
         if self.km and self.running:
             try:
                 self.km.interrupt_kernel()
@@ -222,6 +252,7 @@ class CodeLab(QWidget):
                 pass
 
     def reset(self):
+        """Restartuje kernel: brisu se sve promenljive."""
         if not self.km:
             return
         try:
@@ -238,6 +269,7 @@ class CodeLab(QWidget):
         self.out.setPlainText("Python restarted. All variables are cleared.")
 
     def _set_running(self, on):
+        """Ukljucuje/iskljucuje dugmad RUN i STOP; kad izvrsavanje stane, sakriva polje za unos."""
         self.running = on
         self.b_run.setEnabled(not on)
         self.b_stop.setEnabled(on)
@@ -246,6 +278,9 @@ class CodeLab(QWidget):
 
     # ---------- poruke iz kernela ----------
     def _poll(self):
+        """Poziva se na svakih 40 ms: ispraznjuje iopub red, pa proverava stdin za input().
+        Izuzetak koji nije prazan red znaci da je kernel umro.
+        """
         if not self.kc:
             return
         try:
@@ -268,11 +303,15 @@ class CodeLab(QWidget):
             self.out.appendPlainText(f"\n[kernel se ugasio: {type(ex).__name__}]")
 
     def _handle(self, msg):
+        """Obradjuje jednu poruku kernela. Poruke koje ne pripadaju trenutnom pokretanju
+        (drugi msg_id) se ignorisu.
+        """
         if msg["parent_header"].get("msg_id") != self.msg_id:
             return
         t, c = msg["msg_type"], msg["content"]
         if t == "stream":
             self._write(c["text"])
+        # execute_result: vrednost poslednjeg izraza (kao u Jupyteru); display_data: slike i ostali prikazi
         elif t in ("execute_result", "display_data"):
             data = c["data"]
             if "image/png" in data:  # grafik: prikazi sliku umesto teksta "<Figure ...>"
@@ -280,11 +319,14 @@ class CodeLab(QWidget):
             elif data.get("text/plain"):
                 self._write(data["text/plain"] + "\n")
         elif t == "error":
+            # traceback dolazi sa ANSI bojama; one se uklanjaju regexom
             self._write(ANSI.sub("", "\n".join(c["traceback"])) + "\n")
+        # idle znaci da je kernel zavrsio; iopub je uredjen, pa je sav ispis stigao pre ove poruke
         elif t == "status" and c.get("execution_state") == "idle":
             self._set_running(False)
 
     def _send_input(self):
+        """Enter u polju za unos: ispisuje uneto i salje ga kernelu kao odgovor na input()."""
         text = self.inp.text()
         self.inp.clear()
         self.inp.hide()
@@ -292,6 +334,7 @@ class CodeLab(QWidget):
         self.kc.input(text)
 
     def _write(self, text):
+        """Dodaje tekst na kraj izlaza i drzi prikaz skrolovan do dna."""
         self.out.moveCursor(QTextCursor.End)
         self.out.insertPlainText(text)
         self.out.moveCursor(QTextCursor.End)
