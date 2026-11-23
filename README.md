@@ -7,7 +7,7 @@ one floor per lesson, by solving quizzes and writing real code.
 
 | Platform | How |
 | --- | --- |
-| Browser (any device) | Coming soon |
+| Browser (any device) | [petarjef.github.io/pyhotel](https://petarjef.github.io/pyhotel/) |
 | Windows | Download `PythonHotel_Setup.exe` from the [latest release](https://github.com/petarjef/pyhotel/releases) |
 | Mac | Use the browser version, or run from source (see below) |
 
@@ -21,7 +21,7 @@ signed. Click **More info**, then **Run anyway**.
 - **Hotel:** every floor is a lesson, with 12 levels each (quizzes and coding tasks).
 - **Code Lab:** a built-in Python editor backed by a Jupyter kernel. Variables
   persist between runs, and `input()` works.
-- **Lectures:** course material, with the lecture book and slides inside the game.
+- **Lectures:** the course book, opened from its website ([dazdejkovic.github.io/OI_25_jb1](https://dazdejkovic.github.io/OI_25_jb1/OI_25_00_uvod.html)). It needs an internet connection.
 - **Monty Python:** an AI tutor that answers Python questions.
   It uses Google Gemini with your own free API key (see below).
 - Progress is saved locally on your computer.
@@ -60,10 +60,12 @@ computer, in `settings.json`, which is not part of this repository.
 
 ## Course material
 
-The lecture book and the lecture notebooks are not included in this repository.
-The book is by Professors Azdejković, Radojičić and Stamenković. The Windows
-installer bundles the book and the lecture slides with the course professor's
-permission.
+The course book is not included in this repository or in the Windows installer.
+It is read online at
+[dazdejkovic.github.io/OI_25_jb1](https://dazdejkovic.github.io/OI_25_jb1/OI_25_00_uvod.html).
+In the game, the Lectures tab opens its chapters from there, so it needs an
+internet connection. The book is by Professors Azdejković, Radojičić and
+Stamenković.
 
 ## Project files
 
@@ -74,6 +76,9 @@ permission.
 | `play.py` | Level selection, quizzes, tasks |
 | `tasks.py` | All quiz and coding tasks |
 | `lab.py` | Code Lab (Jupyter kernel) |
-| `lectures.py` | Lecture book and slides |
+| `lectures.py` | Lectures tab: book cover and chapter list (opens the online book) |
 | `ai.py` | AI tutor |
 | `progress.py` | Saved progress |
+| `docs/` | Browser version, served by GitHub Pages |
+| `build_web_data.py` | Generates `docs/data.js` from `tasks.py` and `lectures.py` |
+| `make_release.py`, `installer.iss` | Build the Windows installer |
