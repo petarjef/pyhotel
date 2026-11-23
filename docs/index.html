@@ -21,16 +21,22 @@
   <main>
     <!-- LECTURES -->
     <section id="page-lectures" class="page">
-      <div class="scroll pad">
-        <h2 class="head">Course</h2>
-        <a id="cover" href="https://dazdejkovic.github.io/OI_25_jb1/OI_25_00_uvod.html" target="_blank" rel="noopener">
-          <img src="assets/python_logo.png" alt="">
-          <span class="c1">PYTHON</span>
-          <span class="c2">Poslovno odlucivanje i masinsko ucenje</span>
-          <span class="c3">Azdejkovic<br><br>Radojicic<br><br>Stamenkovic</span>
-        </a>
-        <p class="hint">Knjiga se otvara na svom sajtu.</p>
-        <div id="topics"></div>
+      <div id="v-cover" class="view">
+        <div id="coverWrap">
+          <button type="button" id="cover">
+            <img src="assets/python_logo.png" alt="">
+            <span class="c1">PYTHON</span>
+            <span class="c2">Poslovno odlucivanje i masinsko ucenje</span>
+            <span class="c3">Azdejkovic<br><br>Radojicic<br><br>Stamenkovic</span>
+          </button>
+          <p class="hint">CLICK TO OPEN</p>
+        </div>
+      </div>
+      <div id="v-toc" class="view" hidden>
+        <div class="scroll pad">
+          <button class="ybtn" id="tocBack">&lt; BOOK</button>
+          <div id="topics"></div>
+        </div>
       </div>
     </section>
 

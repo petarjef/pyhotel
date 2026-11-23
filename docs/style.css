@@ -56,7 +56,9 @@ h2.big { font-size: 16px; }
   margin: 8px auto; padding: 40px 20px 34px 28px; box-sizing: border-box; text-decoration: none; text-align: center;
   background: #4b8bbe; border: 4px solid var(--dark); border-left: 24px solid var(--navy);
 }
+#cover { font-family: inherit; color: inherit; cursor: pointer; }
 #cover:hover { background: #5a9bd0; }
+#coverWrap { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 14px; }
 #cover img { width: 52px; height: 52px; }
 .c1 { color: var(--yellow); font-size: 26px; }
 .c2 { color: #fff; font-size: 13px; line-height: 1.6; }
@@ -68,6 +70,9 @@ h2.big { font-size: 16px; }
   font-size: 8px; line-height: 1.6; margin-bottom: 8px;
 }
 .topic:hover { background: #fff3c4; }
+.topic.book { background: var(--yellow); }
+.topic.seen { background: #6bd16b; }
+#topics { margin-top: 12px; }
 
 /* hotel */
 #hotelScroll { overflow-x: hidden; }

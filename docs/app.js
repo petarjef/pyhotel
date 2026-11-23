@@ -35,11 +35,15 @@ function showView(page, id) {
 
 /* ---------------- lectures ---------------- */
 const BOOK_BASE = "https://dazdejkovic.github.io/OI_25_jb1/";
-$("topics").innerHTML = TOPICS.slice(1).map((s) =>
+let chapterNo = 0;
+$("topics").innerHTML = TOPICS.map((s) =>
   `<div class="topic-h">${esc(s.title)}</div>` + s.items.map((t) =>
-    `<a class="topic" href="${BOOK_BASE}${esc(t.file)}" target="_blank" rel="noopener">${esc(t.title)}</a>`
+    `<a class="topic${chapterNo === 0 ? " book" : ""}" href="${BOOK_BASE}${esc(t.file)}" target="_blank" rel="noopener">${chapterNo++}&nbsp;&nbsp;&nbsp;${esc(t.title)}</a>`
   ).join("")
 ).join("");
+$("cover").onclick = () => showView("lectures", "v-toc");
+$("tocBack").onclick = () => showView("lectures", "v-cover");
+$("topics").addEventListener("click", (e) => { const a = e.target.closest(".topic"); if (a) a.classList.add("seen"); });
 
 function esc(s) {
   return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
