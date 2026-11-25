@@ -2610,3 +2610,4 @@ window.HOTEL_DATA = {
   }
  ]
 };
+

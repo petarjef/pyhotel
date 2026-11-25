@@ -120,3 +120,4 @@ Svi nalazi su obrađeni. Posle popravki ponovo su pokrenuti: `verify_tasks.py` (
 pip install -r requirements.txt
 python verify_tasks.py
 ```
+

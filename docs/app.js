@@ -553,3 +553,4 @@ const chat = (() => {
 })();
 
 showTab("play");
+

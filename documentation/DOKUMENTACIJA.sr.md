@@ -385,3 +385,4 @@ Pogledaj `AUDIT.sr.md`. Većina nalaza je popravljena; ostaje duplirana logika d
 - **SSE** – *Server‑Sent Events*, tok tekstualnih događaja preko HTTP‑a (strimovanje odgovora AI‑ja).
 - **Streaming** – prikaz odgovora delimično, dok još stiže.
 - **venv** – izolovano Python okruženje sa sopstvenim bibliotekama.
+

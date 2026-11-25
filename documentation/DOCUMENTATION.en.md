@@ -385,3 +385,4 @@ See `AUDIT.en.md`. Most findings are fixed; what remains is the duplicated deskt
 - **SSE** – *Server-Sent Events*, a stream of text events over HTTP (streaming of the AI answer).
 - **Streaming** – showing the answer in parts while it is still arriving.
 - **venv** – an isolated Python environment with its own libraries.
+
