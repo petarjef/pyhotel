@@ -39,3 +39,5 @@ for p in sorted(ROOT.rglob("*")):
     count += 1
 
 print(f"Kopirano {count} fajlova u {OUT}")
+
+

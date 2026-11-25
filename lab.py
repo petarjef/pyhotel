@@ -338,3 +338,4 @@ class CodeLab(QWidget):
         self.out.moveCursor(QTextCursor.End)
         self.out.insertPlainText(text)
         self.out.moveCursor(QTextCursor.End)
+

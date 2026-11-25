@@ -407,3 +407,4 @@ class PlayPage(QStackedWidget):
             self._open_level(self.floor, self.level + 1)
         else:
             self._to_levels()
+

@@ -465,3 +465,4 @@ class ChatPage(QStackedWidget):
         """Povratak na cet; osvezava prikaz modela."""
         self.chat.refresh_who()
         self.setCurrentIndex(0)
+        

@@ -232,3 +232,4 @@ class LecturesPage(QStackedWidget):
         self.web.setUrl(url)
         self.setCurrentWidget(self.reader)
         btn.setStyleSheet("background: #6bd16b;")  # oznaci kao otvorenu
+

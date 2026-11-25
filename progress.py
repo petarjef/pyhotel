@@ -44,3 +44,5 @@ def done_count(floor):
     while n < LEVELS and is_solved(floor, n + 1):
         n += 1
     return n
+
+

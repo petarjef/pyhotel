@@ -478,3 +478,4 @@ def get_task(floor, level):
     text, expected, starter, _solution = CODE[floor][level // 2 - 1]
     return {"type": "code", "text": text, "expected": expected, "starter": starter}
 
+
